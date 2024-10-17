@@ -1,27 +1,23 @@
-package handlers
+package debuging
 
 import (
-	"log/slog"
 	"time"
 
-	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/models"
 )
 
-func Init(config config.Config) {
-	switch config.Mode {
-	case "debug":
-		income()
-		incomeExpected()
-		account()
-		expence()
-		slog.Info("run in debug mode")
-	case "release":
-		slog.Info("run in release mode")
-	default:
-		slog.Error("bad config.mode")
-	}
+var (
+	Incomes         []models.Income
+	IncomesExpected []models.IncomeExpected
+	Accounts        []models.Account
+	Expences        []models.Expence
+)
 
+func Init() {
+	income()
+	incomeExpected()
+	account()
+	expence()
 }
 
 func income() {
@@ -49,7 +45,7 @@ func income() {
 	income2.SetDateActualFrom(time.Now())
 	income2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	incomes = []models.Income{income1, income2}
+	Incomes = []models.Income{income1, income2}
 }
 
 func incomeExpected() {
@@ -73,7 +69,7 @@ func incomeExpected() {
 	incomeExpected2.SetDateActualFrom(time.Now())
 	incomeExpected2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	incomesExpected = []models.IncomeExpected{incomeExpected1, incomeExpected2}
+	IncomesExpected = []models.IncomeExpected{incomeExpected1, incomeExpected2}
 }
 
 func account() {
@@ -89,7 +85,7 @@ func account() {
 	account2.SetName("user2")
 	account2.SetGroupId(1)
 
-	accounts = []models.Account{account1, account2}
+	Accounts = []models.Account{account1, account2}
 }
 
 func expence() {
@@ -117,5 +113,5 @@ func expence() {
 	expence2.SetDateActualFrom(time.Now())
 	expence2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	expences = []models.Expence{expence1, expence2}
+	Expences = []models.Expence{expence1, expence2}
 }

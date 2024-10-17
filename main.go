@@ -30,7 +30,7 @@ func main() {
 	loggerConsole.Info("Server starting", "port", config.AppConf.APIPort)
 	loggerFile.Info("Server starting", "port", config.AppConf.APIPort)
 
-	routers.Init(loggerConsole, loggerFile)
+	routers.Init(loggerConsole, loggerFile, config.AppConf)
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.AppConf.APIPort), nil); err != nil {
 		loggerConsole.Error("Server failed to start", "error", err)
