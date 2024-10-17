@@ -14,6 +14,7 @@ func Init(config config.Config) {
 		income()
 		incomeExpected()
 		account()
+		expence()
 		slog.Info("run in debug mode")
 	case "release":
 		slog.Info("run in release mode")
@@ -89,4 +90,32 @@ func account() {
 	account2.SetGroupId(1)
 
 	accounts = []models.Account{account1, account2}
+}
+
+func expence() {
+	expence1 := models.Expence{}
+	expence1.SetIdExpence(1)
+	expence1.SetGroupExpence("Utilities")
+	expence1.SetTitleExpence("Electricity Bill")
+	expence1.SetDescriptionExpence("Monthly electricity bill payment")
+	expence1.SetRepeat(1) // 1 - ежемесячно
+	expence1.SetAmount(100.0)
+	expence1.SetDate(time.Now())
+	expence1.SetUpdBy("admin")
+	expence1.SetDateActualFrom(time.Now())
+	expence1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	expence2 := models.Expence{}
+	expence2.SetIdExpence(2)
+	expence2.SetGroupExpence("Groceries")
+	expence2.SetTitleExpence("Weekly Groceries")
+	expence2.SetDescriptionExpence("Weekly grocery shopping")
+	expence2.SetRepeat(0) // 0 - единоразовая
+	expence2.SetAmount(50.0)
+	expence2.SetDate(time.Now())
+	expence2.SetUpdBy("admin")
+	expence2.SetDateActualFrom(time.Now())
+	expence2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	expences = []models.Expence{expence1, expence2}
 }

@@ -11,8 +11,8 @@ type Income struct {
 	amount           float64 // real amount
 	expectedAmount   float64 // expected amount
 	typeIncome       string  // salary or award
-	incomeMonthMonth int     // 1-12
-	incomeMonthDate  int     // 1-31
+	incomeMonthMonth int8    // 1-12
+	incomeMonthDate  int8    // 1-31
 
 	updBy          string    // who changed
 	dateActualFrom time.Time // actual from
@@ -26,8 +26,8 @@ type IncomeJSON struct {
 	Amount           float64 `json:"amount"`
 	ExpectedAmount   float64 `json:"expected_amount"`
 	TypeIncome       string  `json:"type_income"`
-	IncomeMonthMonth int     `json:"income_month_month"`
-	IncomeMonthDate  int     `json:"income_month_date"`
+	IncomeMonthMonth int8    `json:"income_month_month"`
+	IncomeMonthDate  int8    `json:"income_month_date"`
 	UpdBy            string  `json:"upd_by"`
 	DateActualFrom   string  `json:"date_actual_from"`
 	DateActualTo     string  `json:"date_actual_to"`
@@ -73,11 +73,11 @@ func (i *Income) GetTypeIncome() string {
 	return i.typeIncome
 }
 
-func (i *Income) GetIncomeMonthMonth() int {
+func (i *Income) GetIncomeMonthMonth() int8 {
 	return i.incomeMonthMonth
 }
 
-func (i *Income) GetIncomeMonthDate() int {
+func (i *Income) GetIncomeMonthDate() int8 {
 	return i.incomeMonthDate
 }
 
@@ -117,11 +117,11 @@ func (i *Income) SetTypeIncome(typeIncome string) {
 	i.typeIncome = typeIncome
 }
 
-func (i *Income) SetIncomeMonthMonth(month int) {
+func (i *Income) SetIncomeMonthMonth(month int8) {
 	i.incomeMonthMonth = month
 }
 
-func (i *Income) SetIncomeMonthDate(date int) {
+func (i *Income) SetIncomeMonthDate(date int8) {
 	i.incomeMonthDate = date
 }
 
