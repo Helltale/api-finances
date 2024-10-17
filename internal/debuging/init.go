@@ -11,6 +11,7 @@ var (
 	IncomesExpected []models.IncomeExpected
 	Accounts        []models.Account
 	Expences        []models.Expence
+	Remains         []models.Remain
 )
 
 func Init() {
@@ -18,6 +19,33 @@ func Init() {
 	incomeExpected()
 	account()
 	expence()
+	remain()
+}
+
+func remain() {
+	remain1 := models.Remain{}
+	remain1.SetIdRemains(1)
+	remain1.SetIdAccaunt(1)
+	remain1.SetAmount(1500.75)
+	remain1.SetLastUpdateAmount(200.00)
+	remain1.SetLastUpdateId(1)
+	remain1.SetLastUpdateGroup("Deposit")
+	remain1.SetUpdBy("admin")
+	remain1.SetDateActualFrom(time.Now())
+	remain1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	remain2 := models.Remain{}
+	remain2.SetIdRemains(2)
+	remain2.SetIdAccaunt(2)
+	remain2.SetAmount(750.50)
+	remain2.SetLastUpdateAmount(100.00)
+	remain2.SetLastUpdateId(2)
+	remain2.SetLastUpdateGroup("Withdrawal")
+	remain2.SetUpdBy("admin")
+	remain2.SetDateActualFrom(time.Now())
+	remain2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	Remains = []models.Remain{remain1, remain2}
 }
 
 func income() {

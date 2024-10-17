@@ -21,4 +21,7 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/expence/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllExpences(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetAllRemains(w, r, loggerConsole, loggerFile, config)
+	})
 }
