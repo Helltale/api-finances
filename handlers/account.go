@@ -7,13 +7,7 @@ import (
 	"github.com/helltale/api-finances/models"
 )
 
-var (
-	incomes         []models.Income
-	accounts        []models.Account
-	incomesExpected []models.IncomeExpected
-)
-
-func GetAllIncomes(w http.ResponseWriter, r *http.Request) {
+func GetAllAccounts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -21,17 +15,17 @@ func GetAllIncomes(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	var incomesJSON []models.IncomeJSON
-	for _, income := range incomes {
-		incomeJSON, err := income.ToJSON()
+	var accountsJSON []models.AccountJSON
+	for _, account := range accounts {
+		accountJSON, err := account.ToJSON()
 		if err != nil {
 			http.Error(w, "Error converting income to JSON", http.StatusInternalServerError)
 			return
 		}
-		incomesJSON = append(incomesJSON, *incomeJSON)
+		accountsJSON = append(accountsJSON, *accountJSON)
 	}
 
-	if err := json.NewEncoder(w).Encode(incomesJSON); err != nil {
+	if err := json.NewEncoder(w).Encode(accountsJSON); err != nil {
 		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
 	}
 }
