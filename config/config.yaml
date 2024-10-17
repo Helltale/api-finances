@@ -1,2 +1,9 @@
 mode: "debug"
 api-port: "8080"
+
+filepath-log: "app.log"
+
+db-connect: 0
+db-name: ""
+db-user: ""
+db-password: ""

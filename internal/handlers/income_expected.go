@@ -8,10 +8,14 @@ import (
 	"github.com/helltale/api-finances/internal/models"
 )
 
-func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
-	logger.Info("GetAllIncomesExpected called", "method", r.Method)
+func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger) {
+	loggerConsole.Info("GetAllIncomesExpected called", "method", r.Method)
+	loggerFile.Info("GetAllIncomesExpected called", "method", r.Method)
+
 	if r.Method != http.MethodGet {
-		logger.Warn("Method not allowed", "method", r.Method)
+		loggerConsole.Warn("Method not allowed", "method", r.Method)
+		loggerFile.Warn("Method not allowed", "method", r.Method)
+
 		http.Error(w, jsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -22,7 +26,9 @@ func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request, logger *slog.
 	for _, incomeExpected := range incomesExpected {
 		incomeExpectedJSON, err := incomeExpected.ToJSON()
 		if err != nil {
-			logger.Error("Error converting expected income to JSON", "error", err)
+			loggerConsole.Error("Error converting expected income to JSON", "error", err)
+			loggerFile.Error("Error converting expected income to JSON", "error", err)
+
 			http.Error(w, jsonErrorResponse("Error converting expected income to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -30,10 +36,14 @@ func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request, logger *slog.
 	}
 
 	if err := json.NewEncoder(w).Encode(incomesExpectedJSON); err != nil {
-		logger.Error("Error encoding JSON", "error", err)
+		loggerConsole.Error("Error encoding JSON", "error", err)
+		loggerFile.Error("Error encoding JSON", "error", err)
+
 		http.Error(w, jsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	logger.Info("Successfully retrieved expected incomes", "status", http.StatusOK)
+	loggerConsole.Info("Successfully retrieved expected incomes", "status", http.StatusOK)
+	loggerFile.Info("Successfully retrieved expected incomes", "status", http.StatusOK)
+
 }

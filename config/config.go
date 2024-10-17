@@ -8,8 +8,13 @@ import (
 )
 
 type Config struct {
-	APIPort string `yaml:"api-port"`
-	Mode    string `yaml:"mode"`
+	APIPort     string `yaml:"api-port"`
+	Mode        string `yaml:"mode"`
+	FilepathLog string `yaml:"filepath-log"`
+	ConnectDB   string `yaml:"db-connect"`
+	NameDB      string `yaml:"db-name"`
+	UserDB      string `yaml:"db-user"`
+	PasswordDB  string `yaml:"db-password"`
 }
 
 var AppConf Config

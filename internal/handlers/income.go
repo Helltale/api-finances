@@ -14,10 +14,14 @@ var (
 	incomesExpected []models.IncomeExpected
 )
 
-func GetAllIncomes(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
-	logger.Info("GetAllIncomes called", "method", r.Method)
+func GetAllIncomes(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger) {
+	loggerConsole.Info("GetAllIncomes called", "method", r.Method)
+	loggerFile.Info("GetAllIncomes called", "method", r.Method)
+
 	if r.Method != http.MethodGet {
-		logger.Warn("Method not allowed", "method", r.Method)
+		loggerConsole.Warn("Method not allowed", "method", r.Method)
+		loggerFile.Warn("Method not allowed", "method", r.Method)
+
 		http.Error(w, jsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -28,7 +32,9 @@ func GetAllIncomes(w http.ResponseWriter, r *http.Request, logger *slog.Logger) 
 	for _, income := range incomes {
 		incomeJSON, err := income.ToJSON()
 		if err != nil {
-			logger.Error("Error converting income to JSON", "error", err)
+			loggerConsole.Error("Error converting income to JSON", "error", err)
+			loggerFile.Error("Error converting income to JSON", "error", err)
+
 			http.Error(w, jsonErrorResponse("Error converting income to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -36,10 +42,14 @@ func GetAllIncomes(w http.ResponseWriter, r *http.Request, logger *slog.Logger) 
 	}
 
 	if err := json.NewEncoder(w).Encode(incomesJSON); err != nil {
-		logger.Error("Error encoding JSON", "error", err)
+		loggerConsole.Info("GetAllIncomes called", "method", r.Method)
+		loggerFile.Info("GetAllIncomes called", "method", r.Method)
+
 		http.Error(w, jsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	logger.Info("Successfully retrieved incomes", "status", http.StatusOK)
+	loggerConsole.Info("Successfully retrieved incomes", "status", http.StatusOK)
+	loggerFile.Info("Successfully retrieved incomes", "status", http.StatusOK)
+
 }
