@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/handlers"
 	"github.com/helltale/api-finances/internal/routers"
 )
 
 func main() {
+	config.Init()
 
 	handlers.Init()
 	routers.Init()
 
-	fmt.Println("server start on localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	fmt.Printf("info: server start on localhost:%s\n", config.AppConf.APIPort)
+	http.ListenAndServe(fmt.Sprintf(":%s", config.AppConf.APIPort), nil)
 }
