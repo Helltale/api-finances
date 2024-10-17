@@ -1,15 +1,27 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"time"
 
+	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/models"
 )
 
-func Init() {
-	income()
-	incomeExpected()
-	account()
+func Init(config config.Config) {
+	switch config.Mode {
+	case "debug":
+		income()
+		incomeExpected()
+		account()
+		fmt.Println("info: run in debug mode")
+	case "release":
+		fmt.Println("info: run release mode")
+	default:
+		log.Panic("bad config.mode")
+	}
+
 }
 
 func income() {

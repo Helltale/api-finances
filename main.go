@@ -10,9 +10,9 @@ import (
 )
 
 func main() {
-	config.Init()
+	config.Init("config/config.yaml")
 
-	handlers.Init()
+	handlers.Init(config.AppConf)
 	routers.Init()
 
 	fmt.Printf("info: server start on localhost:%s\n", config.AppConf.APIPort)
