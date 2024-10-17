@@ -2,14 +2,17 @@ package handlers
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/helltale/api-finances/internal/models"
 )
 
-func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request) {
+func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
+	logger.Info("GetAllIncomesExpected called", "method", r.Method)
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		logger.Warn("Method not allowed", "method", r.Method)
+		http.Error(w, jsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -19,13 +22,18 @@ func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request) {
 	for _, incomeExpected := range incomesExpected {
 		incomeExpectedJSON, err := incomeExpected.ToJSON()
 		if err != nil {
-			http.Error(w, "Error converting income to JSON", http.StatusInternalServerError)
+			logger.Error("Error converting expected income to JSON", "error", err)
+			http.Error(w, jsonErrorResponse("Error converting expected income to JSON"), http.StatusInternalServerError)
 			return
 		}
 		incomesExpectedJSON = append(incomesExpectedJSON, *incomeExpectedJSON)
 	}
 
 	if err := json.NewEncoder(w).Encode(incomesExpectedJSON); err != nil {
-		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+		logger.Error("Error encoding JSON", "error", err)
+		http.Error(w, jsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
 	}
+
+	logger.Info("Successfully retrieved expected incomes", "status", http.StatusOK)
 }
