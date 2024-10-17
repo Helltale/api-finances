@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/helltale/api-finances/models"
+	"github.com/helltale/api-finances/internal/models"
 )
 
 func GetAllIncomesExpected(w http.ResponseWriter, r *http.Request) {

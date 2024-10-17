@@ -3,7 +3,7 @@ package routers
 import (
 	"net/http"
 
-	"github.com/helltale/api-finances/handlers"
+	"github.com/helltale/api-finances/internal/handlers"
 )
 
 func Init() {

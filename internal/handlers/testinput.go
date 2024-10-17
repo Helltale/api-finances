@@ -3,7 +3,7 @@ package handlers
 import (
 	"time"
 
-	"github.com/helltale/api-finances/models"
+	"github.com/helltale/api-finances/internal/models"
 )
 
 func Init() {

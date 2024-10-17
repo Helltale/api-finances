@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/helltale/api-finances/handlers"
-	"github.com/helltale/api-finances/routers"
+	"github.com/helltale/api-finances/internal/handlers"
+	"github.com/helltale/api-finances/internal/routers"
 )
 
 func main() {
