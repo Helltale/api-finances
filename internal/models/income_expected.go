@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log"
 	"time"
 )
 
@@ -72,6 +73,7 @@ func (ie *IncomeExpected) GetDateActualTo() time.Time {
 }
 
 func (ie *IncomeExpected) SetIdAccaunt(id int64) {
+	log.Printf("Setting IdAccaunt to %d\n", id)
 	ie.idAccaunt = id
 }
 

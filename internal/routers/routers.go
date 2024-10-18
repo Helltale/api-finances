@@ -12,9 +12,23 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/income/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllIncomes(w, r, loggerConsole, loggerFile, config)
 	})
+
 	http.HandleFunc("/income_expected/all", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GetAllIncomesExpected(w, r, loggerConsole, loggerFile, config)
+		handlers.GetIncomesExpectedAll(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/income_expected/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetIncomesExpectedById(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income_expected/account/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetIncomesExpectedByAccountId(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income_expected/new", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PostIncomeExpected(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income_expected/update", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PutIncomeExpected(w, r, loggerConsole, loggerFile, config)
+	})
+
 	http.HandleFunc("/account/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllAccounts(w, r, loggerConsole, loggerFile, config)
 	})

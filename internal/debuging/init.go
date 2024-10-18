@@ -8,7 +8,7 @@ import (
 
 var (
 	Incomes         []models.Income
-	IncomesExpected []models.IncomeExpected
+	IncomesExpected []*models.IncomeExpected
 	Accounts        []models.Account
 	Expences        []models.Expence
 	Remains         []models.Remain
@@ -81,7 +81,7 @@ func income() {
 }
 
 func incomeExpected() {
-	incomeExpected1 := models.IncomeExpected{}
+	incomeExpected1 := &models.IncomeExpected{}
 	incomeExpected1.SetIdIncomeEx(1)
 	incomeExpected1.SetAmount(150.0)
 	incomeExpected1.SetTypeIncome("Salary")
@@ -91,7 +91,7 @@ func incomeExpected() {
 	incomeExpected1.SetDateActualFrom(time.Now())
 	incomeExpected1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	incomeExpected2 := models.IncomeExpected{}
+	incomeExpected2 := &models.IncomeExpected{}
 	incomeExpected2.SetIdIncomeEx(2)
 	incomeExpected2.SetAmount(75.0)
 	incomeExpected2.SetTypeIncome("Bonus")
@@ -101,7 +101,7 @@ func incomeExpected() {
 	incomeExpected2.SetDateActualFrom(time.Now())
 	incomeExpected2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	IncomesExpected = []models.IncomeExpected{incomeExpected1, incomeExpected2}
+	IncomesExpected = []*models.IncomeExpected{incomeExpected1, incomeExpected2}
 }
 
 func account() {
