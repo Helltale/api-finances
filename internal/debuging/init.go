@@ -12,6 +12,8 @@ var (
 	Accounts        []models.Account
 	Expences        []models.Expence
 	Remains         []models.Remain
+	Goals           []models.Goal
+	Cashbacks       []models.Cashback
 )
 
 func Init() {
@@ -20,6 +22,8 @@ func Init() {
 	account()
 	expence()
 	remain()
+	goal()
+	cashback()
 }
 
 func remain() {
@@ -142,4 +146,50 @@ func expence() {
 	expence2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
 	Expences = []models.Expence{expence1, expence2}
+}
+
+func goal() {
+	goal1 := models.Goal{}
+	goal1.SetIdGoal(1)
+	goal1.SetIdAccaunt(1)
+	goal1.SetAmount(1000.0)
+	goal1.SetDate(time.Now().AddDate(0, 1, 0)) // Дата через 1 месяц
+	goal1.SetUpdBy("admin")
+	goal1.SetDateActualFrom(time.Now())
+	goal1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	goal2 := models.Goal{}
+	goal2.SetIdGoal(2)
+	goal2.SetIdAccaunt(2)
+	goal2.SetAmount(500.0)
+	goal2.SetDate(time.Now().AddDate(0, 2, 0)) // Дата через 2 месяца
+	goal2.SetUpdBy("admin")
+	goal2.SetDateActualFrom(time.Now())
+	goal2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	Goals = []models.Goal{goal1, goal2}
+}
+
+func cashback() {
+	cashback1 := models.Cashback{}
+	cashback1.SetIdCashback(1)
+	cashback1.SetIdAccaunt(1)
+	cashback1.SetBankName("Bank A")
+	cashback1.SetCategory("Groceries")
+	cashback1.SetPercent(5)
+	cashback1.SetUpdBy("admin")
+	cashback1.SetDateActualFrom(time.Now())
+	cashback1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	cashback2 := models.Cashback{}
+	cashback2.SetIdCashback(2)
+	cashback2.SetIdAccaunt(2)
+	cashback2.SetBankName("Bank B")
+	cashback2.SetCategory("Dining")
+	cashback2.SetPercent(10)
+	cashback2.SetUpdBy("admin")
+	cashback2.SetDateActualFrom(time.Now())
+	cashback2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
+
+	Cashbacks = []models.Cashback{cashback1, cashback2}
 }

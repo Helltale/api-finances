@@ -24,4 +24,10 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllRemains(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/goal/all", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetAllGoals(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/all", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetAllCashbacks(w, r, loggerConsole, loggerFile, config)
+	})
 }
