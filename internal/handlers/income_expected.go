@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -250,8 +248,8 @@ func PostIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *s
 
 // update
 func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutIncomeExpected called", "method", r.Method)
-	loggerFile.Info("PutIncomeExpected called", "method", r.Method)
+	loggerConsole.Info("UpdateIncomeExpected called", "method", r.Method)
+	loggerFile.Info("UpdateIncomeExpected called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
 		loggerConsole.Warn("Method not allowed", "method", r.Method)
@@ -261,28 +259,23 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		return
 	}
 
-	idStr := r.URL.Query().Get("id")
-	if idStr == "" {
-		loggerConsole.Warn("ID not provided")
-		loggerFile.Warn("ID not provided")
-
-		http.Error(w, u.JsonErrorResponse("ID not provided"), http.StatusBadRequest)
+	// Извлечение индекса из URL
+	urlPath := r.URL.Path
+	index := strings.TrimPrefix(urlPath, "/income_expected/update/")
+	if index == urlPath { // Если индекс не был найден
+		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
 		return
 	}
 
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	// Преобразование index в int64
+	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
 	if err != nil {
-		loggerConsole.Error("Error parsing ID", "error", err)
-		loggerFile.Error("Error parsing ID", "error", err)
-
-		http.Error(w, u.JsonErrorResponse("Invalid ID format"), http.StatusBadRequest)
+		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
 		return
 	}
 
 	var updatedIncomeExpectedJSON models.IncomeExpectedJSON
 	decoder := json.NewDecoder(r.Body)
-	fmt.Println("-----------------------------------", r.Body)
-	defer r.Body.Close()
 	if err := decoder.Decode(&updatedIncomeExpectedJSON); err != nil {
 		loggerConsole.Error("Error decoding JSON", "error", err)
 		loggerFile.Error("Error decoding JSON", "error", err)
@@ -291,50 +284,54 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		return
 	}
 
-	loggerConsole.Info("Decoded JSON", "data", updatedIncomeExpectedJSON)
-	loggerFile.Info("Decoded JSON", "data", updatedIncomeExpectedJSON)
+	// Поиск записи по индексу
+	var oldIncomeExpected *models.IncomeExpected
+	for i, income := range debuging.IncomesExpected {
+		if income.GetIdIncomeEx() == idIncomeEx { // Сравнение с int64
+			oldIncomeExpected = income
+			// Удаление старой записи
+			debuging.IncomesExpected = append(debuging.IncomesExpected[:i], debuging.IncomesExpected[i+1:]...) // Удаление записи из среза
+			break
+		}
+	}
 
-	existingIncomeExpected, err := GetIncomeExpectedById(id)
-	if err != nil {
-		loggerConsole.Error("Error fetching income expected", "error", err)
-		loggerFile.Error("Error fetching income expected", "error", err)
-
+	if oldIncomeExpected == nil {
 		http.Error(w, u.JsonErrorResponse("Income expected not found"), http.StatusNotFound)
 		return
 	}
 
-	existingIncomeExpected.SetIdAccaunt(updatedIncomeExpectedJSON.IdAccaunt)
-	existingIncomeExpected.SetIdIncomeEx(updatedIncomeExpectedJSON.IdIncomeEx)
-	existingIncomeExpected.SetAmount(updatedIncomeExpectedJSON.Amount)
-	existingIncomeExpected.SetTypeIncome(updatedIncomeExpectedJSON.TypeIncome)
-	existingIncomeExpected.SetIncomeMonthDate(updatedIncomeExpectedJSON.IncomeMonthDate)
-	existingIncomeExpected.SetUpdBy(updatedIncomeExpectedJSON.UpdBy)
+	// Создание новой записи
+	newIncomeExpected := &models.IncomeExpected{}
+	newIncomeExpected.SetIdAccaunt(updatedIncomeExpectedJSON.IdAccaunt)
+	newIncomeExpected.SetIdIncomeEx(updatedIncomeExpectedJSON.IdIncomeEx)
+	newIncomeExpected.SetAmount(updatedIncomeExpectedJSON.Amount)
+	newIncomeExpected.SetTypeIncome(updatedIncomeExpectedJSON.TypeIncome)
+	newIncomeExpected.SetIncomeMonthDate(updatedIncomeExpectedJSON.IncomeMonthDate)
+	newIncomeExpected.SetUpdBy(updatedIncomeExpectedJSON.UpdBy)
 
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedIncomeExpectedJSON.DateActualFrom); err == nil {
-		existingIncomeExpected.SetDateActualFrom(dateActualFrom)
+		newIncomeExpected.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Warn("Error parsing DateActualFrom", "error", err)
+		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedIncomeExpectedJSON.DateActualTo); err == nil {
-		existingIncomeExpected.SetDateActualTo(dateActualTo)
+		newIncomeExpected.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Warn("Error parsing DateActualTo", "error", err)
+		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	for i, incomeExpected := range debuging.IncomesExpected {
-		if incomeExpected.GetIdIncomeEx() == id {
-			debuging.IncomesExpected[i] = existingIncomeExpected
-			break
-		}
-	}
+	// Добавление новой записи
+	debuging.IncomesExpected = append(debuging.IncomesExpected, newIncomeExpected)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	response := map[string]interface{}{
-		"message":         "Income expected updated successfully",
-		"income_expected": existingIncomeExpected,
+		"message":             "Income expected updated successfully",
+		"old_income_expected": oldIncomeExpected,
+		"new_income_expected": updatedIncomeExpectedJSON,
+		"updated_index":       idIncomeEx,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -347,18 +344,4 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 
 	loggerConsole.Info("Successfully updated income expected", "status", http.StatusOK)
 	loggerFile.Info("Successfully updated income expected", "status", http.StatusOK)
-}
-
-func GetIncomeExpectedById(idIncomeEx int64) (*models.IncomeExpected, error) {
-	for _, incomeExpected := range debuging.IncomesExpected {
-		if incomeExpected.GetIdIncomeEx() == idIncomeEx {
-			return incomeExpected, nil
-		}
-	}
-	return nil, errors.New("income expected not found")
-}
-
-func SaveIncomeExpected(incomeExpected *models.IncomeExpected) error {
-	debuging.IncomesExpected = append(debuging.IncomesExpected, incomeExpected)
-	return nil
 }

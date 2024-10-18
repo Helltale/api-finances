@@ -25,7 +25,7 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/income_expected/new", func(w http.ResponseWriter, r *http.Request) {
 		handlers.PostIncomeExpected(w, r, loggerConsole, loggerFile, config)
 	})
-	http.HandleFunc("/income_expected/update", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/income_expected/update/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.PutIncomeExpected(w, r, loggerConsole, loggerFile, config)
 	})
 
