@@ -9,7 +9,7 @@ import (
 var (
 	Incomes         []*models.Income
 	IncomesExpected []*models.IncomeExpected
-	Accounts        []models.Account
+	Accounts        []*models.Account
 	Expences        []models.Expence
 	Remains         []models.Remain
 	Goals           []models.Goal
@@ -105,19 +105,19 @@ func incomeExpected() {
 }
 
 func account() {
-	account1 := models.Account{}
+	account1 := &models.Account{}
 	account1.SetIdAccaunt(1)
 	account1.SetTgId(123456789)
 	account1.SetName("user1")
 	account1.SetGroupId(1)
 
-	account2 := models.Account{}
+	account2 := &models.Account{}
 	account2.SetIdAccaunt(2)
 	account2.SetTgId(987654321)
 	account2.SetName("user2")
 	account2.SetGroupId(1)
 
-	Accounts = []models.Account{account1, account2}
+	Accounts = []*models.Account{account1, account2}
 }
 
 func expence() {

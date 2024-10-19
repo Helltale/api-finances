@@ -9,6 +9,7 @@ import (
 )
 
 func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+	//income
 	http.HandleFunc("/income/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllIncomes(w, r, loggerConsole, loggerFile, config)
 	})
@@ -28,6 +29,7 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 		handlers.DeleteIncome(w, r, loggerConsole, loggerFile, config)
 	})
 
+	//income_expected
 	http.HandleFunc("/income_expected/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetIncomesExpectedAll(w, r, loggerConsole, loggerFile, config)
 	})
@@ -47,18 +49,39 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 		handlers.DeleteIncomeExpected(w, r, loggerConsole, loggerFile, config)
 	})
 
+	// account
 	http.HandleFunc("/account/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllAccounts(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/account/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetAccountById(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/account/new/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PostAccount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/account/update/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PutAccount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/account/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteAccount(w, r, loggerConsole, loggerFile, config)
+	})
+
+	//expence
 	http.HandleFunc("/expence/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllExpences(w, r, loggerConsole, loggerFile, config)
 	})
+
+	//remain
 	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllRemains(w, r, loggerConsole, loggerFile, config)
 	})
+
+	//goal
 	http.HandleFunc("/goal/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllGoals(w, r, loggerConsole, loggerFile, config)
 	})
+
+	//cashback
 	http.HandleFunc("/cashback/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllCashbacks(w, r, loggerConsole, loggerFile, config)
 	})
