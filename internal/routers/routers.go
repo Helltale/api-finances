@@ -85,4 +85,19 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/cashback/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllCashbacks(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/cashback/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetCashbackById(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/account/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetCashbacksByAccountId(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/bank/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetCashbacksByBankName(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/category/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetCashbacksByCategory(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/current", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetCashbacksCurrent(w, r, loggerConsole, loggerFile, config)
+	})
 }

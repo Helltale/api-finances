@@ -63,3 +63,5 @@ func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 // todo получить последнюю запись
 
 // todo получить запись в промежутке времени?
+
+// todo остальные crud
