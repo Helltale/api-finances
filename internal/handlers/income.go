@@ -14,6 +14,8 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
+//todo сделать группу методов с актуальными структурами
+
 // get all
 func GetAllIncomes(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllIncomes called", "method", r.Method)

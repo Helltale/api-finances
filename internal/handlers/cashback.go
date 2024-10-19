@@ -11,6 +11,7 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
+// get all
 func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllCashbacks called", "method", r.Method)
 	loggerFile.Info("GetAllCashbacks called", "method", r.Method)
@@ -56,3 +57,13 @@ func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 	loggerConsole.Info("Successfully retrieved cashbacks", "status", http.StatusOK)
 	loggerFile.Info("Successfully retrieved cashbacks", "status", http.StatusOK)
 }
+
+// todo получение всех кэшбеков по id аккаунта
+
+// todo получение всех кэшбеков по названию банка
+
+// todo получение всех кэшбеков по категории
+
+// todo получение всех актуальных кэшбеков
+
+// todo остальные crud

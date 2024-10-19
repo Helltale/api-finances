@@ -11,6 +11,7 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
+// get all
 func GetAllExpences(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllExpences called", "method", r.Method)
 	loggerFile.Info("GetAllExpences called", "method", r.Method)
@@ -56,3 +57,22 @@ func GetAllExpences(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 	loggerConsole.Info("Successfully retrieved expences", "status", http.StatusOK)
 	loggerFile.Info("Successfully retrieved expences", "status", http.StatusOK)
 }
+
+// todo получение записи по id
+
+// todo получение записи по id группы траты
+
+// todo получение записи по названию траты
+
+// todo получение записи в промежутке времени fe: 	...between/2022-12-31/9999-12-31			- промежуток
+//													...between?from=2022-12-31&to=9999-12-31	- или так, пока не решил
+
+// todo получение всех постоянных и нет трат fe:	...every/1
+//													.../ever/0
+
+// todo получение записей по цене fe: 				...amount/between/1000/10000000
+//													...amount/between?from=1000&to=10000000
+//													...amount/more/10000000000
+//													...amount/less/10000000000
+
+//todo остальные crud

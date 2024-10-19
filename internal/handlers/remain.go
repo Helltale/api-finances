@@ -11,6 +11,7 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
+// get all
 func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllRemains called", "method", r.Method)
 	loggerFile.Info("GetAllRemains called", "method", r.Method)
@@ -56,3 +57,9 @@ func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	loggerConsole.Info("Successfully retrieved remains", "status", http.StatusOK)
 	loggerFile.Info("Successfully retrieved remains", "status", http.StatusOK)
 }
+
+// todo получить запись по id
+
+// todo получить последнюю запись
+
+// todo получить запись в промежутке времени?
