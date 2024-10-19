@@ -28,6 +28,9 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/income_expected/update/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.PutIncomeExpected(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/income_expected/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteIncomeExpected(w, r, loggerConsole, loggerFile, config)
+	})
 
 	http.HandleFunc("/account/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllAccounts(w, r, loggerConsole, loggerFile, config)

@@ -347,3 +347,74 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 	loggerConsole.Info("Successfully updated income expected", "status", http.StatusOK)
 	loggerFile.Info("Successfully updated income expected", "status", http.StatusOK)
 }
+
+// delete
+func DeleteIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+	loggerConsole.Info("DeleteIncomeExpected called", "method", r.Method)
+	loggerFile.Info("DeleteIncomeExpected called", "method", r.Method)
+
+	if r.Method != http.MethodDelete {
+		loggerConsole.Warn("Method not allowed", "method", r.Method)
+		loggerFile.Warn("Method not allowed", "method", r.Method)
+
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	urlPath := r.URL.Path
+	index := strings.TrimPrefix(urlPath, "/income_expected/delete/")
+	if index == urlPath {
+		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
+		return
+	}
+
+	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
+		return
+	}
+
+	var oldIncomeExpected *models.IncomeExpected
+	for i, income := range debuging.IncomesExpected {
+		if income.GetIdIncomeEx() == idIncomeEx {
+			oldIncomeExpected = income
+
+			// Удаление записи из среза
+			debuging.IncomesExpected = append(debuging.IncomesExpected[:i], debuging.IncomesExpected[i+1:]...)
+			break
+		}
+	}
+
+	if oldIncomeExpected == nil {
+		http.Error(w, u.JsonErrorResponse("Income expected not found"), http.StatusNotFound)
+		return
+	}
+
+	// Преобразуем старую структуру в JSON для ответа
+	oldIncomeExpectedJSON, err := oldIncomeExpected.ToJSON()
+	if err != nil {
+		loggerConsole.Error("Error converting old income expected to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing old income expected"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]interface{}{
+		"message":               "Income expected deleted successfully",
+		"index_income_expected": idIncomeEx,
+		"old_income_expected":   oldIncomeExpectedJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		loggerConsole.Error("Error encoding JSON", "error", err)
+		loggerFile.Error("Error encoding JSON", "error", err)
+
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	loggerConsole.Info("Successfully deleted income expected", "status", http.StatusOK)
+	loggerFile.Info("Successfully deleted income expected", "status", http.StatusOK)
+}
