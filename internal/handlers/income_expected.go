@@ -248,8 +248,8 @@ func PostIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *s
 
 // update
 func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("UpdateIncomeExpected called", "method", r.Method)
-	loggerFile.Info("UpdateIncomeExpected called", "method", r.Method)
+	loggerConsole.Info("PutIncomeExpected called", "method", r.Method)
+	loggerFile.Info("PutIncomeExpected called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
 		loggerConsole.Warn("Method not allowed", "method", r.Method)
@@ -259,15 +259,13 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		return
 	}
 
-	// Извлечение индекса из URL
 	urlPath := r.URL.Path
 	index := strings.TrimPrefix(urlPath, "/income_expected/update/")
-	if index == urlPath { // Если индекс не был найден
+	if index == urlPath {
 		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
 		return
 	}
 
-	// Преобразование index в int64
 	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
 	if err != nil {
 		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
@@ -284,12 +282,11 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		return
 	}
 
-	// Поиск записи по индексу
 	var oldIncomeExpected *models.IncomeExpected
 	for i, income := range debuging.IncomesExpected {
-		if income.GetIdIncomeEx() == idIncomeEx { // Сравнение с int64
+		if income.GetIdIncomeEx() == idIncomeEx {
 			oldIncomeExpected = income
-			// Удаление старой записи
+
 			debuging.IncomesExpected = append(debuging.IncomesExpected[:i], debuging.IncomesExpected[i+1:]...) // Удаление записи из среза
 			break
 		}
@@ -300,7 +297,13 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		return
 	}
 
-	// Создание новой записи
+	oldIncomeExpectedJSON, err := oldIncomeExpected.ToJSON()
+	if err != nil {
+		loggerConsole.Error("Error converting old income expected to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing old income expected"), http.StatusInternalServerError)
+		return
+	}
+
 	newIncomeExpected := &models.IncomeExpected{}
 	newIncomeExpected.SetIdAccaunt(updatedIncomeExpectedJSON.IdAccaunt)
 	newIncomeExpected.SetIdIncomeEx(updatedIncomeExpectedJSON.IdIncomeEx)
@@ -321,17 +324,16 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	// Добавление новой записи
 	debuging.IncomesExpected = append(debuging.IncomesExpected, newIncomeExpected)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	response := map[string]interface{}{
-		"message":             "Income expected updated successfully",
-		"old_income_expected": oldIncomeExpected,
-		"new_income_expected": updatedIncomeExpectedJSON,
-		"updated_index":       idIncomeEx,
+		"message":               "Income expected updated successfully",
+		"index_income_expected": idIncomeEx,
+		"old_income_expected":   oldIncomeExpectedJSON,
+		"new_income_expected":   updatedIncomeExpectedJSON,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
