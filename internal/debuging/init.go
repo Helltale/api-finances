@@ -10,10 +10,10 @@ var (
 	Incomes         []*models.Income
 	IncomesExpected []*models.IncomeExpected
 	Accounts        []*models.Account
-	Expences        []models.Expence
-	Remains         []models.Remain
-	Goals           []models.Goal
-	Cashbacks       []models.Cashback
+	Expences        []*models.Expence
+	Remains         []*models.Remain
+	Goals           []*models.Goal
+	Cashbacks       []*models.Cashback
 )
 
 func Init() {
@@ -27,7 +27,7 @@ func Init() {
 }
 
 func remain() {
-	remain1 := models.Remain{}
+	remain1 := &models.Remain{}
 	remain1.SetIdRemains(1)
 	remain1.SetIdAccaunt(1)
 	remain1.SetAmount(1500.75)
@@ -38,7 +38,7 @@ func remain() {
 	remain1.SetDateActualFrom(time.Now())
 	remain1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	remain2 := models.Remain{}
+	remain2 := &models.Remain{}
 	remain2.SetIdRemains(2)
 	remain2.SetIdAccaunt(2)
 	remain2.SetAmount(750.50)
@@ -49,7 +49,7 @@ func remain() {
 	remain2.SetDateActualFrom(time.Now())
 	remain2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	Remains = []models.Remain{remain1, remain2}
+	Remains = []*models.Remain{remain1, remain2}
 }
 
 func income() {
@@ -121,7 +121,7 @@ func account() {
 }
 
 func expence() {
-	expence1 := models.Expence{}
+	expence1 := &models.Expence{}
 	expence1.SetIdExpence(1)
 	expence1.SetGroupExpence("Utilities")
 	expence1.SetTitleExpence("Electricity Bill")
@@ -133,7 +133,7 @@ func expence() {
 	expence1.SetDateActualFrom(time.Now())
 	expence1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	expence2 := models.Expence{}
+	expence2 := &models.Expence{}
 	expence2.SetIdExpence(2)
 	expence2.SetGroupExpence("Groceries")
 	expence2.SetTitleExpence("Weekly Groceries")
@@ -145,11 +145,11 @@ func expence() {
 	expence2.SetDateActualFrom(time.Now())
 	expence2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	Expences = []models.Expence{expence1, expence2}
+	Expences = []*models.Expence{expence1, expence2}
 }
 
 func goal() {
-	goal1 := models.Goal{}
+	goal1 := &models.Goal{}
 	goal1.SetIdGoal(1)
 	goal1.SetIdAccaunt(1)
 	goal1.SetAmount(1000.0)
@@ -158,7 +158,7 @@ func goal() {
 	goal1.SetDateActualFrom(time.Now())
 	goal1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	goal2 := models.Goal{}
+	goal2 := &models.Goal{}
 	goal2.SetIdGoal(2)
 	goal2.SetIdAccaunt(2)
 	goal2.SetAmount(500.0)
@@ -167,11 +167,11 @@ func goal() {
 	goal2.SetDateActualFrom(time.Now())
 	goal2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	Goals = []models.Goal{goal1, goal2}
+	Goals = []*models.Goal{goal1, goal2}
 }
 
 func cashback() {
-	cashback1 := models.Cashback{}
+	cashback1 := &models.Cashback{}
 	cashback1.SetIdCashback(1)
 	cashback1.SetIdAccaunt(1)
 	cashback1.SetBankName("Bank A")
@@ -181,7 +181,7 @@ func cashback() {
 	cashback1.SetDateActualFrom(time.Now())
 	cashback1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	cashback2 := models.Cashback{}
+	cashback2 := &models.Cashback{}
 	cashback2.SetIdCashback(2)
 	cashback2.SetIdAccaunt(2)
 	cashback2.SetBankName("Bank B")
@@ -191,5 +191,5 @@ func cashback() {
 	cashback2.SetDateActualFrom(time.Now())
 	cashback2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	Cashbacks = []models.Cashback{cashback1, cashback2}
+	Cashbacks = []*models.Cashback{cashback1, cashback2}
 }

@@ -11,10 +11,6 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
-var (
-	goals []models.Goal
-)
-
 func GetAllGoals(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllGoals called", "method", r.Method)
 	loggerFile.Info("GetAllGoals called", "method", r.Method)
@@ -29,13 +25,14 @@ func GetAllGoals(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 
 	w.Header().Set("Content-Type", "application/json")
 
-	var goalsJSON []models.GoalJSON
+	var goals []*models.Goal
 	if config.Mode == "debug" {
 		goals = debuging.Goals
 	} else {
-		goals = []models.Goal{}
+		goals = []*models.Goal{}
 	}
 
+	response := make([]models.GoalJSON, 0, len(goals))
 	for _, goal := range goals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
@@ -45,10 +42,10 @@ func GetAllGoals(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
 		}
-		goalsJSON = append(goalsJSON, *goalJSON)
+		response = append(response, *goalJSON)
 	}
 
-	if err := json.NewEncoder(w).Encode(goalsJSON); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		loggerConsole.Error("Error encoding JSON", "error", err)
 		loggerFile.Error("Error encoding JSON", "error", err)
 

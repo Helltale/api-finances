@@ -11,10 +11,6 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
-var (
-	remains []models.Remain
-)
-
 func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllRemains called", "method", r.Method)
 	loggerFile.Info("GetAllRemains called", "method", r.Method)
@@ -29,13 +25,14 @@ func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 
 	w.Header().Set("Content-Type", "application/json")
 
-	var remainsJSON []models.RemainJSON
+	var remains []*models.Remain
 	if config.Mode == "debug" {
 		remains = debuging.Remains
 	} else {
-		remains = []models.Remain{}
+		remains = []*models.Remain{}
 	}
 
+	response := make([]models.RemainJSON, 0, len(remains))
 	for _, remain := range remains {
 		remainJSON, err := remain.ToJSON()
 		if err != nil {
@@ -45,10 +42,10 @@ func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 			http.Error(w, u.JsonErrorResponse("Error converting remain to JSON"), http.StatusInternalServerError)
 			return
 		}
-		remainsJSON = append(remainsJSON, *remainJSON)
+		response = append(response, *remainJSON)
 	}
 
-	if err := json.NewEncoder(w).Encode(remainsJSON); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		loggerConsole.Error("Error encoding JSON", "error", err)
 		loggerFile.Error("Error encoding JSON", "error", err)
 

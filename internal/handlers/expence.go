@@ -25,11 +25,11 @@ func GetAllExpences(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	w.Header().Set("Content-Type", "application/json")
 
-	var expences []models.Expence
+	var expences []*models.Expence
 	if config.Mode == "debug" {
 		expences = debuging.Expences
 	} else {
-		expences = []models.Expence{}
+		expences = []*models.Expence{}
 	}
 
 	var expencesJSON []models.ExpenceJSON

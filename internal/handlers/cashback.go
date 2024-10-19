@@ -11,10 +11,6 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
-var (
-	cashbacks []models.Cashback
-)
-
 func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllCashbacks called", "method", r.Method)
 	loggerFile.Info("GetAllCashbacks called", "method", r.Method)
@@ -29,13 +25,14 @@ func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 
 	w.Header().Set("Content-Type", "application/json")
 
-	var cashbacksJSON []models.CashbackJSON
+	var cashbacks []*models.Cashback
 	if config.Mode == "debug" {
 		cashbacks = debuging.Cashbacks
 	} else {
-		cashbacks = []models.Cashback{}
+		cashbacks = []*models.Cashback{}
 	}
 
+	response := make([]models.CashbackJSON, 0, len(cashbacks))
 	for _, cashback := range cashbacks {
 		cashbackJSON, err := cashback.ToJSON()
 		if err != nil {
@@ -45,10 +42,10 @@ func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 			http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 			return
 		}
-		cashbacksJSON = append(cashbacksJSON, *cashbackJSON)
+		response = append(response, *cashbackJSON)
 	}
 
-	if err := json.NewEncoder(w).Encode(cashbacksJSON); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		loggerConsole.Error("Error encoding JSON", "error", err)
 		loggerFile.Error("Error encoding JSON", "error", err)
 
