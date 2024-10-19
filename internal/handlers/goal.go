@@ -11,6 +11,7 @@ import (
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
+// get all
 func GetAllGoals(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllGoals called", "method", r.Method)
 	loggerFile.Info("GetAllGoals called", "method", r.Method)
@@ -56,3 +57,15 @@ func GetAllGoals(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	loggerConsole.Info("Successfully retrieved goals", "status", http.StatusOK)
 	loggerFile.Info("Successfully retrieved goals", "status", http.StatusOK)
 }
+
+// todo получение записи по id
+
+// todo получение записи по id аккаунта
+
+// todo получение записи по дате получения
+
+// todo получение актуальной записи?
+
+// todo получение записей по сумме, в промежутке, больше меньше
+
+// todo остальные crud
