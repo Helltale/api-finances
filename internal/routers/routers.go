@@ -12,12 +12,27 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/income/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllIncomes(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/income/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetIncomeById(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income/account/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetIncomesByAccountId(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income/new/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PostIncome(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income/update/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PutIncome(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/income/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteIncome(w, r, loggerConsole, loggerFile, config)
+	})
 
 	http.HandleFunc("/income_expected/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetIncomesExpectedAll(w, r, loggerConsole, loggerFile, config)
 	})
 	http.HandleFunc("/income_expected/id/", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GetIncomesExpectedById(w, r, loggerConsole, loggerFile, config)
+		handlers.GetIncomeExpectedById(w, r, loggerConsole, loggerFile, config)
 	})
 	http.HandleFunc("/income_expected/account/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetIncomesExpectedByAccountId(w, r, loggerConsole, loggerFile, config)

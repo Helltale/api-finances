@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	Incomes         []models.Income
+	Incomes         []*models.Income
 	IncomesExpected []*models.IncomeExpected
 	Accounts        []models.Account
 	Expences        []models.Expence
@@ -53,7 +53,7 @@ func remain() {
 }
 
 func income() {
-	income1 := models.Income{}
+	income1 := &models.Income{}
 	income1.SetIdIncome(1)
 	income1.SetAmount(100.5)
 	income1.SetTypeIncome("Salary")
@@ -65,7 +65,7 @@ func income() {
 	income1.SetDateActualFrom(time.Now())
 	income1.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	income2 := models.Income{}
+	income2 := &models.Income{}
 	income2.SetIdIncome(2)
 	income2.SetAmount(50.5)
 	income2.SetTypeIncome("Freelance")
@@ -77,7 +77,7 @@ func income() {
 	income2.SetDateActualFrom(time.Now())
 	income2.SetDateActualTo(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC))
 
-	Incomes = []models.Income{income1, income2}
+	Incomes = []*models.Income{income1, income2}
 }
 
 func incomeExpected() {

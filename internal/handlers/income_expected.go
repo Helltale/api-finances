@@ -60,7 +60,7 @@ func GetIncomesExpectedAll(w http.ResponseWriter, r *http.Request, loggerConsole
 }
 
 // get one by id
-func GetIncomesExpectedById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func GetIncomeExpectedById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetIncomeExpectedById called", "method", r.Method)
 	loggerFile.Info("GetIncomeExpectedById called", "method", r.Method)
 
