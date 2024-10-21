@@ -113,6 +113,36 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/goal/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllGoals(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/goal/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalById(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/account/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalsByAccountId(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/date/between/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalsByDateRange(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/amount/between/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalsByAmountRange(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/amount/less/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalsByMaxAmount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/amount/more/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalsByMinAmount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/current", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGoalsCurrent(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/new", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PostGoal(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/update/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PutGoal(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/goal/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteGoal(w, r, loggerConsole, loggerFile, config)
+	})
 
 	//cashback
 	http.HandleFunc("/cashback/all", func(w http.ResponseWriter, r *http.Request) {

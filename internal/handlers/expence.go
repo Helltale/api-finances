@@ -262,8 +262,8 @@ func GetExpencesByDateRange(w http.ResponseWriter, r *http.Request, loggerConsol
 		return
 	}
 
-	startDateStr := urlParts[3]
-	endDateStr := urlParts[4]
+	startDateStr := urlParts[4]
+	endDateStr := urlParts[5]
 
 	// Парсинг начальной даты
 	startDate, err := time.Parse("2006-01-02", startDateStr)
