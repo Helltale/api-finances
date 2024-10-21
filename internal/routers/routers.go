@@ -70,6 +70,30 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/expence/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetAllExpences(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/expence/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpenceById(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/group/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByGroupId(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/title/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByTitle(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/date/between/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByDateRange(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/amount/between/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByAmountRange(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/amount/less/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByMaxAmount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/amount/more/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByMinAmount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/every/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetExpencesByRepeatType(w, r, loggerConsole, loggerFile, config)
+	})
 
 	//remain
 	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
