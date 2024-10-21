@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/helltale/api-finances/config"
-	"github.com/helltale/api-finances/internal/debuging"
+	debugging "github.com/helltale/api-finances/internal/debuging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
@@ -17,7 +17,7 @@ import (
 //todo сделать группу методов с актуальными структурами
 
 // get all
-func GetAllIncomes(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllIncomes called", "method", r.Method)
 	loggerFile.Info("GetAllIncomes called", "method", r.Method)
 
@@ -33,7 +33,7 @@ func GetAllIncomes(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 
 	var incomes []*models.Income
 	if config.Mode == "debug" {
-		incomes = debuging.Incomes
+		incomes = debugging.Incomes
 	} else {
 		incomes = []*models.Income{}
 	}
@@ -64,7 +64,7 @@ func GetAllIncomes(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 }
 
 // get one by id
-func GetIncomeById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetIncomeById called", "method", r.Method)
 	loggerFile.Info("GetIncomeById called", "method", r.Method)
 
@@ -90,7 +90,7 @@ func GetIncomeById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 
 	var foundIncome *models.Income
 	if config.Mode == "debug" {
-		for _, income := range debuging.Incomes {
+		for _, income := range debugging.Incomes {
 			if income.GetIdIncome() == idIncome {
 				foundIncome = income
 				break
@@ -126,7 +126,7 @@ func GetIncomeById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 }
 
 // get all by person id
-func GetIncomesByAccountId(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetIncomesByAccountId called", "method", r.Method)
 	loggerFile.Info("GetIncomesByAccountId called", "method", r.Method)
 
@@ -152,7 +152,7 @@ func GetIncomesByAccountId(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	var incomes []*models.Income
 	if config.Mode == "debug" {
-		incomes = debuging.Incomes
+		incomes = debugging.Incomes
 	} else {
 		incomes = []*models.Income{}
 	}
@@ -191,7 +191,7 @@ func GetIncomesByAccountId(w http.ResponseWriter, r *http.Request, loggerConsole
 }
 
 // create
-func PostIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PostIncome called", "method", r.Method)
 	loggerFile.Info("PostIncome called", "method", r.Method)
 
@@ -213,7 +213,6 @@ func PostIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 		return
 	}
 
-	// Создаем новую структуру Income
 	newIncome := &models.Income{}
 	newIncome.SetIdIncome(newIncomeJSON.IdIncome)
 	newIncome.SetIdAccaunt(newIncomeJSON.IdAccaunt)
@@ -225,7 +224,6 @@ func PostIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	newIncome.SetIncomeMonthDate(newIncomeJSON.IncomeMonthDate)
 	newIncome.SetUpdBy(newIncomeJSON.UpdBy)
 
-	// Преобразуем строки в даты
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", newIncomeJSON.DateActualFrom); err == nil {
 		newIncome.SetDateActualFrom(dateActualFrom)
 	} else {
@@ -238,8 +236,7 @@ func PostIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	// Добавляем новый доход в массив
-	debuging.Incomes = append(debuging.Incomes, newIncome)
+	debugging.Incomes = append(debugging.Incomes, newIncome)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -262,7 +259,7 @@ func PostIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 }
 
 // update
-func PutIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PutIncome called", "method", r.Method)
 	loggerFile.Info("PutIncome called", "method", r.Method)
 
@@ -298,11 +295,11 @@ func PutIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	}
 
 	var oldIncome *models.Income
-	for i, income := range debuging.Incomes {
+	for i, income := range debugging.Incomes {
 		if income.GetIdIncome() == idIncome {
 			oldIncome = income
 
-			debuging.Incomes = append(debuging.Incomes[:i], debuging.Incomes[i+1:]...) // Удаление записи из среза
+			debugging.Incomes = append(debugging.Incomes[:i], debugging.Incomes[i+1:]...)
 			break
 		}
 	}
@@ -341,7 +338,7 @@ func PutIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	debuging.Incomes = append(debuging.Incomes, newIncome)
+	debugging.Incomes = append(debugging.Incomes, newIncome)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -366,7 +363,7 @@ func PutIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 }
 
 // delete
-func DeleteIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("DeleteIncome called", "method", r.Method)
 	loggerFile.Info("DeleteIncome called", "method", r.Method)
 
@@ -392,12 +389,11 @@ func DeleteIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	}
 
 	var oldIncome *models.Income
-	for i, income := range debuging.Incomes {
+	for i, income := range debugging.Incomes {
 		if income.GetIdIncome() == idIncome {
 			oldIncome = income
 
-			// Удаление записи из среза
-			debuging.Incomes = append(debuging.Incomes[:i], debuging.Incomes[i+1:]...)
+			debugging.Incomes = append(debugging.Incomes[:i], debugging.Incomes[i+1:]...)
 			break
 		}
 	}
@@ -407,7 +403,6 @@ func DeleteIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 		return
 	}
 
-	// Преобразуем старую структуру в JSON для ответа
 	oldIncomeJSON, err := oldIncome.ToJSON()
 	if err != nil {
 		loggerConsole.Error("Error converting old income to JSON", "error", err)

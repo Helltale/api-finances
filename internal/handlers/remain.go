@@ -6,13 +6,13 @@ import (
 	"net/http"
 
 	"github.com/helltale/api-finances/config"
-	"github.com/helltale/api-finances/internal/debuging"
+	debugging "github.com/helltale/api-finances/internal/debuging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func RemainGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllRemains called", "method", r.Method)
 	loggerFile.Info("GetAllRemains called", "method", r.Method)
 
@@ -28,7 +28,7 @@ func GetAllRemains(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 
 	var remains []*models.Remain
 	if config.Mode == "debug" {
-		remains = debuging.Remains
+		remains = debugging.Remains
 	} else {
 		remains = []*models.Remain{}
 	}

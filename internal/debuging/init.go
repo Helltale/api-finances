@@ -1,4 +1,4 @@
-package debuging
+package debugging
 
 import (
 	"time"

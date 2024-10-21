@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/helltale/api-finances/config"
-	"github.com/helltale/api-finances/internal/debuging"
+	debugging "github.com/helltale/api-finances/internal/debuging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func GetAllExpences(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllExpences called", "method", r.Method)
 	loggerFile.Info("GetAllExpences called", "method", r.Method)
 
@@ -32,7 +32,7 @@ func GetAllExpences(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	var expences []*models.Expence
 	if config.Mode == "debug" {
-		expences = debuging.Expences
+		expences = debugging.Expences
 	} else {
 		expences = []*models.Expence{}
 	}
@@ -63,7 +63,7 @@ func GetAllExpences(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 }
 
 // get one by id
-func GetExpenceById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpenceById called", "method", r.Method)
 	loggerFile.Info("GetExpenceById called", "method", r.Method)
 
@@ -89,7 +89,7 @@ func GetExpenceById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	var foundExpence *models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetIdExpence() == idExpence {
 				foundExpence = expence
 				break
@@ -125,7 +125,7 @@ func GetExpenceById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 }
 
 // get all by group id
-func GetExpencesByGroupId(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByGroupId called", "method", r.Method)
 	loggerFile.Info("GetExpencesByGroupId called", "method", r.Method)
 
@@ -145,7 +145,7 @@ func GetExpencesByGroupId(w http.ResponseWriter, r *http.Request, loggerConsole 
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetGroupExpence() == groupExpence {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -184,7 +184,7 @@ func GetExpencesByGroupId(w http.ResponseWriter, r *http.Request, loggerConsole 
 }
 
 // get all by title
-func GetExpencesByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByTitle called", "method", r.Method)
 	loggerFile.Info("GetExpencesByTitle called", "method", r.Method)
 
@@ -204,7 +204,7 @@ func GetExpencesByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *s
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetTitleExpence() == titleExpence {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -243,7 +243,7 @@ func GetExpencesByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *s
 }
 
 // get all by date range
-func GetExpencesByDateRange(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByDateRange called", "method", r.Method)
 	loggerFile.Info("GetExpencesByDateRange called", "method", r.Method)
 
@@ -255,7 +255,6 @@ func GetExpencesByDateRange(w http.ResponseWriter, r *http.Request, loggerConsol
 		return
 	}
 
-	// Извлечение дат из URL
 	urlParts := strings.Split(r.URL.Path, "/")
 	if len(urlParts) < 4 {
 		http.Error(w, u.JsonErrorResponse("Both start and end dates are required"), http.StatusBadRequest)
@@ -265,17 +264,15 @@ func GetExpencesByDateRange(w http.ResponseWriter, r *http.Request, loggerConsol
 	startDateStr := urlParts[4]
 	endDateStr := urlParts[5]
 
-	// Парсинг начальной даты
 	startDate, err := time.Parse("2006-01-02", startDateStr)
 	if err != nil {
 		http.Error(w, u.JsonErrorResponse("Invalid start date format"), http.StatusBadRequest)
 		return
 	}
 
-	// Парсинг конечной даты
 	var endDate time.Time
 	if endDateStr == "9999-12-31" {
-		endDate = time.Now() // Устанавливаем конечную дату на текущее время
+		endDate = time.Now()
 	} else {
 		endDate, err = time.Parse("2006-01-02", endDateStr)
 		if err != nil {
@@ -286,7 +283,7 @@ func GetExpencesByDateRange(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetDate().After(startDate) && expence.GetDate().Before(endDate) {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -325,7 +322,7 @@ func GetExpencesByDateRange(w http.ResponseWriter, r *http.Request, loggerConsol
 }
 
 // get all by repeat type
-func GetExpencesByRepeatType(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByRepeatType called", "method", r.Method)
 	loggerFile.Info("GetExpencesByRepeatType called", "method", r.Method)
 
@@ -337,7 +334,6 @@ func GetExpencesByRepeatType(w http.ResponseWriter, r *http.Request, loggerConso
 		return
 	}
 
-	// Извлечение значения repeat из URL
 	urlParts := strings.Split(r.URL.Path, "/")
 	fmt.Println(urlParts)
 	if len(urlParts) < 2 {
@@ -346,7 +342,7 @@ func GetExpencesByRepeatType(w http.ResponseWriter, r *http.Request, loggerConso
 	}
 
 	repeatStr := urlParts[3]
-	repeat, err := strconv.ParseInt(repeatStr, 10, 8) // Используем int8, так как repeat - это int8
+	repeat, err := strconv.ParseInt(repeatStr, 10, 8)
 	if err != nil || (repeat != 0 && repeat != 1) {
 		http.Error(w, u.JsonErrorResponse("Invalid repeat type, must be 0 or 1"), http.StatusBadRequest)
 		return
@@ -354,7 +350,7 @@ func GetExpencesByRepeatType(w http.ResponseWriter, r *http.Request, loggerConso
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetRepeat() == int8(repeat) {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -393,7 +389,7 @@ func GetExpencesByRepeatType(w http.ResponseWriter, r *http.Request, loggerConso
 }
 
 // get all by amount range
-func GetExpencesByAmountRange(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByAmountRange called", "method", r.Method)
 	loggerFile.Info("GetExpencesByAmountRange called", "method", r.Method)
 
@@ -432,7 +428,7 @@ func GetExpencesByAmountRange(w http.ResponseWriter, r *http.Request, loggerCons
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetAmount() >= minAmount && expence.GetAmount() <= maxAmount {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -471,7 +467,7 @@ func GetExpencesByAmountRange(w http.ResponseWriter, r *http.Request, loggerCons
 }
 
 // get all by max amount
-func GetExpencesByMaxAmount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByMaxAmount called", "method", r.Method)
 	loggerFile.Info("GetExpencesByMaxAmount called", "method", r.Method)
 
@@ -483,7 +479,6 @@ func GetExpencesByMaxAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 		return
 	}
 
-	// Извлечение значения max amount из URL
 	urlParts := strings.Split(r.URL.Path, "/")
 	if len(urlParts) < 5 {
 		http.Error(w, u.JsonErrorResponse("Max amount is required"), http.StatusBadRequest)
@@ -492,7 +487,6 @@ func GetExpencesByMaxAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	maxAmountStr := urlParts[4]
 
-	// Парсинг максимальной суммы
 	maxAmount, err := strconv.ParseFloat(maxAmountStr, 64)
 	if err != nil {
 		http.Error(w, u.JsonErrorResponse("Invalid max amount format"), http.StatusBadRequest)
@@ -501,7 +495,7 @@ func GetExpencesByMaxAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetAmount() < maxAmount {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -540,7 +534,7 @@ func GetExpencesByMaxAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 }
 
 // get all by min amount
-func GetExpencesByMinAmount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetExpencesByMinAmount called", "method", r.Method)
 	loggerFile.Info("GetExpencesByMinAmount called", "method", r.Method)
 
@@ -552,7 +546,6 @@ func GetExpencesByMinAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 		return
 	}
 
-	// Извлечение значения min amount из URL
 	urlParts := strings.Split(r.URL.Path, "/")
 	if len(urlParts) < 5 {
 		http.Error(w, u.JsonErrorResponse("Min amount is required"), http.StatusBadRequest)
@@ -561,7 +554,6 @@ func GetExpencesByMinAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	minAmountStr := urlParts[4]
 
-	// Парсинг минимальной суммы
 	minAmount, err := strconv.ParseFloat(minAmountStr, 64)
 	if err != nil {
 		http.Error(w, u.JsonErrorResponse("Invalid min amount format"), http.StatusBadRequest)
@@ -570,7 +562,7 @@ func GetExpencesByMinAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	var foundExpences []*models.Expence
 	if config.Mode == "debug" {
-		for _, expence := range debuging.Expences {
+		for _, expence := range debugging.Expences {
 			if expence.GetAmount() > minAmount {
 				foundExpences = append(foundExpences, expence)
 			}
@@ -609,7 +601,7 @@ func GetExpencesByMinAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 }
 
 // create
-func PostExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpencePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PostExpence called", "method", r.Method)
 	loggerFile.Info("PostExpence called", "method", r.Method)
 
@@ -650,7 +642,7 @@ func PostExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 		newExpence.SetDateActualTo(dateActualTo)
 	}
 
-	debuging.Expences = append(debuging.Expences, newExpence)
+	debugging.Expences = append(debugging.Expences, newExpence)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -673,7 +665,7 @@ func PostExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 }
 
 // update
-func PutExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpencePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PutExpence called", "method", r.Method)
 	loggerFile.Info("PutExpence called", "method", r.Method)
 
@@ -709,11 +701,11 @@ func PutExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	var oldExpence *models.Expence
-	for i, expence := range debuging.Expences {
+	for i, expence := range debugging.Expences {
 		if expence.GetIdExpence() == idExpence {
 			oldExpence = expence
 
-			debuging.Expences = append(debuging.Expences[:i], debuging.Expences[i+1:]...)
+			debugging.Expences = append(debugging.Expences[:i], debugging.Expences[i+1:]...)
 			break
 		}
 	}
@@ -757,7 +749,7 @@ func PutExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	debuging.Expences = append(debuging.Expences, newExpence)
+	debugging.Expences = append(debugging.Expences, newExpence)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -782,7 +774,7 @@ func PutExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 }
 
 // delete
-func DeleteExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func ExpenceDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("DeleteExpence called", "method", r.Method)
 	loggerFile.Info("DeleteExpence called", "method", r.Method)
 
@@ -808,11 +800,11 @@ func DeleteExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	}
 
 	var oldExpence *models.Expence
-	for i, expence := range debuging.Expences {
+	for i, expence := range debugging.Expences {
 		if expence.GetIdExpence() == idExpence {
 			oldExpence = expence
 
-			debuging.Expences = append(debuging.Expences[:i], debuging.Expences[i+1:]...)
+			debugging.Expences = append(debugging.Expences[:i], debugging.Expences[i+1:]...)
 			break
 		}
 	}

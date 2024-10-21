@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/helltale/api-finances/config"
-	"github.com/helltale/api-finances/internal/debuging"
+	debugging "github.com/helltale/api-finances/internal/debuging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllCashbacks called", "method", r.Method)
 	loggerFile.Info("GetAllCashbacks called", "method", r.Method)
 
@@ -32,7 +32,7 @@ func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 
 	var cashbacks []*models.Cashback
 	if config.Mode == "debug" {
-		cashbacks = debuging.Cashbacks
+		cashbacks = debugging.Cashbacks
 	} else {
 		cashbacks = []*models.Cashback{}
 	}
@@ -63,7 +63,7 @@ func GetAllCashbacks(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 }
 
 // get one by id
-func GetCashbackById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetCashbackById called", "method", r.Method)
 	loggerFile.Info("GetCashbackById called", "method", r.Method)
 
@@ -89,7 +89,7 @@ func GetCashbackById(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 
 	var foundCashback *models.Cashback
 	if config.Mode == "debug" {
-		for _, cashback := range debuging.Cashbacks {
+		for _, cashback := range debugging.Cashbacks {
 			if cashback.GetIdCashback() == idCashback {
 				foundCashback = cashback
 				break
@@ -125,7 +125,7 @@ func GetCashbackById(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 }
 
 // get by account id
-func GetCashbacksByAccountId(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetCashbacksByAccountId called", "method", r.Method)
 	loggerFile.Info("GetCashbacksByAccountId called", "method", r.Method)
 
@@ -151,7 +151,7 @@ func GetCashbacksByAccountId(w http.ResponseWriter, r *http.Request, loggerConso
 
 	var foundCashbacks []*models.Cashback
 	if config.Mode == "debug" {
-		for _, cashback := range debuging.Cashbacks {
+		for _, cashback := range debugging.Cashbacks {
 			if cashback.GetIdAccaunt() == idAccaunt {
 				foundCashbacks = append(foundCashbacks, cashback)
 			}
@@ -190,7 +190,7 @@ func GetCashbacksByAccountId(w http.ResponseWriter, r *http.Request, loggerConso
 }
 
 // get by bank name
-func GetCashbacksByBankName(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetCashbacksByBankName called", "method", r.Method)
 	loggerFile.Info("GetCashbacksByBankName called", "method", r.Method)
 
@@ -211,7 +211,7 @@ func GetCashbacksByBankName(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	var foundCashbacks []*models.Cashback
 	if config.Mode == "debug" {
-		for _, cashback := range debuging.Cashbacks {
+		for _, cashback := range debugging.Cashbacks {
 			if strings.EqualFold(cashback.GetBankName(), bankName) {
 				foundCashbacks = append(foundCashbacks, cashback)
 			}
@@ -250,7 +250,7 @@ func GetCashbacksByBankName(w http.ResponseWriter, r *http.Request, loggerConsol
 }
 
 // get by category
-func GetCashbacksByCategory(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetCashbacksByCategory called", "method", r.Method)
 	loggerFile.Info("GetCashbacksByCategory called", "method", r.Method)
 
@@ -270,7 +270,7 @@ func GetCashbacksByCategory(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	var foundCashbacks []*models.Cashback
 	if config.Mode == "debug" {
-		for _, cashback := range debuging.Cashbacks {
+		for _, cashback := range debugging.Cashbacks {
 			if strings.EqualFold(cashback.GetCategory(), category) {
 				foundCashbacks = append(foundCashbacks, cashback)
 			}
@@ -309,7 +309,7 @@ func GetCashbacksByCategory(w http.ResponseWriter, r *http.Request, loggerConsol
 }
 
 // get current
-func GetCashbacksCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetCurrentCashbacks called", "method", r.Method)
 	loggerFile.Info("GetCurrentCashbacks called", "method", r.Method)
 
@@ -323,7 +323,7 @@ func GetCashbacksCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	var foundCashbacks []*models.Cashback
 	if config.Mode == "debug" {
-		for _, cashback := range debuging.Cashbacks {
+		for _, cashback := range debugging.Cashbacks {
 			if cashback.GetDateActualTo().Equal(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)) {
 				foundCashbacks = append(foundCashbacks, cashback)
 			}
@@ -362,7 +362,7 @@ func GetCashbacksCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *
 }
 
 // create
-func PostCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PostCashback called", "method", r.Method)
 	loggerFile.Info("PostCashback called", "method", r.Method)
 
@@ -399,7 +399,7 @@ func PostCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 		newCashback.SetDateActualTo(dateActualTo)
 	}
 
-	debuging.Cashbacks = append(debuging.Cashbacks, newCashback)
+	debugging.Cashbacks = append(debugging.Cashbacks, newCashback)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -422,7 +422,7 @@ func PostCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 }
 
 // update
-func PutCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PutCashback called", "method", r.Method)
 	loggerFile.Info("PutCashback called", "method", r.Method)
 
@@ -458,11 +458,11 @@ func PutCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	}
 
 	var oldCashback *models.Cashback
-	for i, cashback := range debuging.Cashbacks {
+	for i, cashback := range debugging.Cashbacks {
 		if cashback.GetIdCashback() == idCashback {
 			oldCashback = cashback
 
-			debuging.Cashbacks = append(debuging.Cashbacks[:i], debuging.Cashbacks[i+1:]...)
+			debugging.Cashbacks = append(debugging.Cashbacks[:i], debugging.Cashbacks[i+1:]...)
 			break
 		}
 	}
@@ -499,7 +499,7 @@ func PutCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	debuging.Cashbacks = append(debuging.Cashbacks, newCashback)
+	debugging.Cashbacks = append(debugging.Cashbacks, newCashback)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -524,7 +524,7 @@ func PutCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 }
 
 // delete
-func DeleteCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func CashbackDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("DeleteCashback called", "method", r.Method)
 	loggerFile.Info("DeleteCashback called", "method", r.Method)
 
@@ -550,12 +550,11 @@ func DeleteCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 	}
 
 	var oldCashback *models.Cashback
-	for i, cashback := range debuging.Cashbacks {
+	for i, cashback := range debugging.Cashbacks {
 		if cashback.GetIdCashback() == idCashback {
 			oldCashback = cashback
 
-			// Удаление записи из среза
-			debuging.Cashbacks = append(debuging.Cashbacks[:i], debuging.Cashbacks[i+1:]...)
+			debugging.Cashbacks = append(debugging.Cashbacks[:i], debugging.Cashbacks[i+1:]...)
 			break
 		}
 	}
@@ -565,7 +564,6 @@ func DeleteCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 		return
 	}
 
-	// Преобразуем старую структуру в JSON для ответа
 	oldCashbackJSON, err := oldCashback.ToJSON()
 	if err != nil {
 		loggerConsole.Error("Error converting old cashback to JSON", "error", err)

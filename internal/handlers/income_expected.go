@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/helltale/api-finances/config"
-	"github.com/helltale/api-finances/internal/debuging"
+	debugging "github.com/helltale/api-finances/internal/debuging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
@@ -17,7 +17,7 @@ import (
 //todo сделать группу методов с актуальными структурами
 
 // get all
-func GetIncomesExpectedAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomesExpectedGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllIncomesExpected called", "method", r.Method)
 	loggerFile.Info("GetAllIncomesExpected called", "method", r.Method)
 
@@ -33,7 +33,7 @@ func GetIncomesExpectedAll(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	var incomesExpected []*models.IncomeExpected
 	if config.Mode == "debug" {
-		incomesExpected = debuging.IncomesExpected
+		incomesExpected = debugging.IncomesExpected
 	} else {
 		incomesExpected = []*models.IncomeExpected{}
 	}
@@ -62,7 +62,7 @@ func GetIncomesExpectedAll(w http.ResponseWriter, r *http.Request, loggerConsole
 }
 
 // get one by id
-func GetIncomeExpectedById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeExpectedGetByIncomeExpectedId(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetIncomeExpectedById called", "method", r.Method)
 	loggerFile.Info("GetIncomeExpectedById called", "method", r.Method)
 
@@ -88,7 +88,7 @@ func GetIncomeExpectedById(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	var foundIncomeExpected *models.IncomeExpected
 	if config.Mode == "debug" {
-		for _, incomeExpected := range debuging.IncomesExpected {
+		for _, incomeExpected := range debugging.IncomesExpected {
 			if incomeExpected.GetIdIncomeEx() == idIncomeEx {
 				foundIncomeExpected = incomeExpected
 				break
@@ -124,7 +124,7 @@ func GetIncomeExpectedById(w http.ResponseWriter, r *http.Request, loggerConsole
 }
 
 // get all by person id
-func GetIncomesExpectedByAccountId(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomesExpectedGetByAccountId(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetIncomesByAccountId called", "method", r.Method)
 	loggerFile.Info("GetIncomesByAccountId called", "method", r.Method)
 
@@ -150,7 +150,7 @@ func GetIncomesExpectedByAccountId(w http.ResponseWriter, r *http.Request, logge
 
 	var incomesExpected []*models.IncomeExpected
 	if config.Mode == "debug" {
-		incomesExpected = debuging.IncomesExpected
+		incomesExpected = debugging.IncomesExpected
 	} else {
 		incomesExpected = []*models.IncomeExpected{}
 	}
@@ -189,7 +189,7 @@ func GetIncomesExpectedByAccountId(w http.ResponseWriter, r *http.Request, logge
 }
 
 // create
-func PostIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeExpectedPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PostIncomeExpected called", "method", r.Method)
 	loggerFile.Info("PostIncomeExpected called", "method", r.Method)
 
@@ -226,7 +226,7 @@ func PostIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *s
 		newIncomeExpected.SetDateActualTo(dateActualTo)
 	}
 
-	debuging.IncomesExpected = append(debuging.IncomesExpected, newIncomeExpected)
+	debugging.IncomesExpected = append(debugging.IncomesExpected, newIncomeExpected)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -249,7 +249,7 @@ func PostIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *s
 }
 
 // update
-func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PutIncomeExpected called", "method", r.Method)
 	loggerFile.Info("PutIncomeExpected called", "method", r.Method)
 
@@ -285,11 +285,11 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 	}
 
 	var oldIncomeExpected *models.IncomeExpected
-	for i, income := range debuging.IncomesExpected {
+	for i, income := range debugging.IncomesExpected {
 		if income.GetIdIncomeEx() == idIncomeEx {
 			oldIncomeExpected = income
 
-			debuging.IncomesExpected = append(debuging.IncomesExpected[:i], debuging.IncomesExpected[i+1:]...) // Удаление записи из среза
+			debugging.IncomesExpected = append(debugging.IncomesExpected[:i], debugging.IncomesExpected[i+1:]...)
 			break
 		}
 	}
@@ -326,7 +326,7 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 		loggerConsole.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	debuging.IncomesExpected = append(debuging.IncomesExpected, newIncomeExpected)
+	debugging.IncomesExpected = append(debugging.IncomesExpected, newIncomeExpected)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -351,7 +351,7 @@ func PutIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 }
 
 // delete
-func DeleteIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("DeleteIncomeExpected called", "method", r.Method)
 	loggerFile.Info("DeleteIncomeExpected called", "method", r.Method)
 
@@ -377,12 +377,11 @@ func DeleteIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole 
 	}
 
 	var oldIncomeExpected *models.IncomeExpected
-	for i, income := range debuging.IncomesExpected {
+	for i, income := range debugging.IncomesExpected {
 		if income.GetIdIncomeEx() == idIncomeEx {
 			oldIncomeExpected = income
 
-			// Удаление записи из среза
-			debuging.IncomesExpected = append(debuging.IncomesExpected[:i], debuging.IncomesExpected[i+1:]...)
+			debugging.IncomesExpected = append(debugging.IncomesExpected[:i], debugging.IncomesExpected[i+1:]...)
 			break
 		}
 	}
@@ -392,7 +391,6 @@ func DeleteIncomeExpected(w http.ResponseWriter, r *http.Request, loggerConsole 
 		return
 	}
 
-	// Преобразуем старую структуру в JSON для ответа
 	oldIncomeExpectedJSON, err := oldIncomeExpected.ToJSON()
 	if err != nil {
 		loggerConsole.Error("Error converting old income expected to JSON", "error", err)

@@ -8,13 +8,13 @@ import (
 	"strings"
 
 	"github.com/helltale/api-finances/config"
-	"github.com/helltale/api-finances/internal/debuging"
+	debugging "github.com/helltale/api-finances/internal/debuging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func GetAllAccounts(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func AccountGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAllAccounts called", "method", r.Method)
 	loggerFile.Info("GetAllAccounts called", "method", r.Method)
 
@@ -30,7 +30,7 @@ func GetAllAccounts(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	var accounts []*models.Account
 	if config.Mode == "debug" {
-		accounts = debuging.Accounts
+		accounts = debugging.Accounts
 	} else {
 		accounts = []*models.Account{}
 	}
@@ -61,7 +61,7 @@ func GetAllAccounts(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 }
 
 // get one by id
-func GetAccountById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("GetAccountById called", "method", r.Method)
 	loggerFile.Info("GetAccountById called", "method", r.Method)
 
@@ -87,7 +87,7 @@ func GetAccountById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	var foundAccount *models.Account
 	if config.Mode == "debug" {
-		for _, account := range debuging.Accounts {
+		for _, account := range debugging.Accounts {
 			if account.GetIdAccaunt() == idAccaunt {
 				foundAccount = account
 				break
@@ -123,7 +123,7 @@ func GetAccountById(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 }
 
 // create
-func PostAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func AccountPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PostAccount called", "method", r.Method)
 	loggerFile.Info("PostAccount called", "method", r.Method)
 
@@ -151,7 +151,7 @@ func PostAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	newAccount.SetName(newAccountJSON.Name)
 	newAccount.SetGroupId(newAccountJSON.GroupId)
 
-	debuging.Accounts = append(debuging.Accounts, newAccount)
+	debugging.Accounts = append(debugging.Accounts, newAccount)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -174,7 +174,7 @@ func PostAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 }
 
 // update
-func PutAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func AccountPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("PutAccount called", "method", r.Method)
 	loggerFile.Info("PutAccount called", "method", r.Method)
 
@@ -210,11 +210,11 @@ func PutAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	var oldAccount *models.Account
-	for i, account := range debuging.Accounts {
+	for i, account := range debugging.Accounts {
 		if account.GetIdAccaunt() == idAccaunt {
 			oldAccount = account
 
-			debuging.Accounts = append(debuging.Accounts[:i], debuging.Accounts[i+1:]...)
+			debugging.Accounts = append(debugging.Accounts[:i], debugging.Accounts[i+1:]...)
 			break
 		}
 	}
@@ -237,7 +237,7 @@ func PutAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	newAccount.SetName(updatedAccountJSON.Name)
 	newAccount.SetGroupId(updatedAccountJSON.GroupId)
 
-	debuging.Accounts = append(debuging.Accounts, newAccount)
+	debugging.Accounts = append(debugging.Accounts, newAccount)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -262,7 +262,7 @@ func PutAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 }
 
 // delete
-func DeleteAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+func AccountDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
 	loggerConsole.Info("DeleteAccount called", "method", r.Method)
 	loggerFile.Info("DeleteAccount called", "method", r.Method)
 
@@ -288,11 +288,11 @@ func DeleteAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	}
 
 	var oldAccount *models.Account
-	for i, account := range debuging.Accounts {
+	for i, account := range debugging.Accounts {
 		if account.GetIdAccaunt() == idAccaunt {
 			oldAccount = account
 
-			debuging.Accounts = append(debuging.Accounts[:i], debuging.Accounts[i+1:]...)
+			debugging.Accounts = append(debugging.Accounts[:i], debugging.Accounts[i+1:]...)
 			break
 		}
 	}
