@@ -608,4 +608,244 @@ func GetExpencesByMinAmount(w http.ResponseWriter, r *http.Request, loggerConsol
 	loggerFile.Info("Successfully retrieved expences by min amount", "status", http.StatusOK)
 }
 
-//todo остальные crud
+// create
+func PostExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+	loggerConsole.Info("PostExpence called", "method", r.Method)
+	loggerFile.Info("PostExpence called", "method", r.Method)
+
+	if r.Method != http.MethodPost {
+		loggerConsole.Warn("Method not allowed", "method", r.Method)
+		loggerFile.Warn("Method not allowed", "method", r.Method)
+
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	var newExpenceJSON models.ExpenceJSON
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&newExpenceJSON); err != nil {
+		loggerConsole.Error("Error decoding JSON", "error", err)
+		loggerFile.Error("Error decoding JSON", "error", err)
+
+		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
+		return
+	}
+
+	newExpence := &models.Expence{}
+	newExpence.SetIdExpence(newExpenceJSON.IdExpence)
+	newExpence.SetGroupExpence(newExpenceJSON.GroupExpence)
+	newExpence.SetTitleExpence(newExpenceJSON.TitleExpence)
+	newExpence.SetDescriptionExpence(newExpenceJSON.DescriptionExpence)
+	newExpence.SetRepeat(newExpenceJSON.Repeat)
+	newExpence.SetAmount(newExpenceJSON.Amount)
+	newExpence.SetUpdBy(newExpenceJSON.UpdBy)
+
+	if date, err := time.Parse("2006-01-02T15:04:05Z", newExpenceJSON.Date); err == nil {
+		newExpence.SetDate(date)
+	}
+	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", newExpenceJSON.DateActualFrom); err == nil {
+		newExpence.SetDateActualFrom(dateActualFrom)
+	}
+	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", newExpenceJSON.DateActualTo); err == nil {
+		newExpence.SetDateActualTo(dateActualTo)
+	}
+
+	debuging.Expences = append(debuging.Expences, newExpence)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	response := map[string]interface{}{
+		"message": "Expence created successfully",
+		"expence": newExpenceJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		loggerConsole.Error("Error encoding JSON", "error", err)
+		loggerFile.Error("Error encoding JSON", "error", err)
+
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	loggerConsole.Info("Successfully created expence", "status", http.StatusCreated)
+	loggerFile.Info("Successfully created expence", "status", http.StatusCreated)
+}
+
+// update
+func PutExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+	loggerConsole.Info("PutExpence called", "method", r.Method)
+	loggerFile.Info("PutExpence called", "method", r.Method)
+
+	if r.Method != http.MethodPut {
+		loggerConsole.Warn("Method not allowed", "method", r.Method)
+		loggerFile.Warn("Method not allowed", "method", r.Method)
+
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	urlPath := r.URL.Path
+	index := strings.TrimPrefix(urlPath, "/expence/update/")
+	if index == urlPath {
+		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
+		return
+	}
+
+	idExpence, err := strconv.ParseInt(index, 10, 64)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
+		return
+	}
+
+	var updatedExpenceJSON models.ExpenceJSON
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&updatedExpenceJSON); err != nil {
+		loggerConsole.Error("Error decoding JSON", "error", err)
+		loggerFile.Error("Error decoding JSON", "error", err)
+
+		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
+		return
+	}
+
+	var oldExpence *models.Expence
+	for i, expence := range debuging.Expences {
+		if expence.GetIdExpence() == idExpence {
+			oldExpence = expence
+
+			debuging.Expences = append(debuging.Expences[:i], debuging.Expences[i+1:]...)
+			break
+		}
+	}
+
+	if oldExpence == nil {
+		http.Error(w, u.JsonErrorResponse("Expence not found"), http.StatusNotFound)
+		return
+	}
+
+	oldExpenceJSON, err := oldExpence.ToJSON()
+	if err != nil {
+		loggerConsole.Error("Error converting old expence to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing old expence"), http.StatusInternalServerError)
+		return
+	}
+
+	newExpence := &models.Expence{}
+	newExpence.SetIdExpence(updatedExpenceJSON.IdExpence)
+	newExpence.SetGroupExpence(updatedExpenceJSON.GroupExpence)
+	newExpence.SetTitleExpence(updatedExpenceJSON.TitleExpence)
+	newExpence.SetDescriptionExpence(updatedExpenceJSON.DescriptionExpence)
+	newExpence.SetRepeat(updatedExpenceJSON.Repeat)
+	newExpence.SetAmount(updatedExpenceJSON.Amount)
+	newExpence.SetUpdBy(updatedExpenceJSON.UpdBy)
+
+	if date, err := time.Parse("2006-01-02T15:04:05Z", updatedExpenceJSON.Date); err == nil {
+		newExpence.SetDate(date)
+	} else {
+		loggerConsole.Error("Error parsing Date", "error", err)
+	}
+
+	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedExpenceJSON.DateActualFrom); err == nil {
+		newExpence.SetDateActualFrom(dateActualFrom)
+	} else {
+		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+	}
+
+	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedExpenceJSON.DateActualTo); err == nil {
+		newExpence.SetDateActualTo(dateActualTo)
+	} else {
+		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+	}
+
+	debuging.Expences = append(debuging.Expences, newExpence)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]interface{}{
+		"message":       "Expence updated successfully",
+		"index_expence": idExpence,
+		"old_expence":   oldExpenceJSON,
+		"new_expence":   updatedExpenceJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		loggerConsole.Error("Error encoding JSON", "error", err)
+		loggerFile.Error("Error encoding JSON", "error", err)
+
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	loggerConsole.Info("Successfully updated expence", "status", http.StatusOK)
+	loggerFile.Info("Successfully updated expence", "status", http.StatusOK)
+}
+
+// delete
+func DeleteExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
+	loggerConsole.Info("DeleteExpence called", "method", r.Method)
+	loggerFile.Info("DeleteExpence called", "method", r.Method)
+
+	if r.Method != http.MethodDelete {
+		loggerConsole.Warn("Method not allowed", "method", r.Method)
+		loggerFile.Warn("Method not allowed", "method", r.Method)
+
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	urlPath := r.URL.Path
+	index := strings.TrimPrefix(urlPath, "/expence/delete/")
+	if index == urlPath {
+		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
+		return
+	}
+
+	idExpence, err := strconv.ParseInt(index, 10, 64)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
+		return
+	}
+
+	var oldExpence *models.Expence
+	for i, expence := range debuging.Expences {
+		if expence.GetIdExpence() == idExpence {
+			oldExpence = expence
+
+			debuging.Expences = append(debuging.Expences[:i], debuging.Expences[i+1:]...)
+			break
+		}
+	}
+
+	if oldExpence == nil {
+		http.Error(w, u.JsonErrorResponse("Expence not found"), http.StatusNotFound)
+		return
+	}
+
+	oldExpenceJSON, err := oldExpence.ToJSON()
+	if err != nil {
+		loggerConsole.Error("Error converting old expence to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing old expence"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]interface{}{
+		"message":       "Expence deleted successfully",
+		"index_expence": idExpence,
+		"old_expence":   oldExpenceJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		loggerConsole.Error("Error encoding JSON", "error", err)
+		loggerFile.Error("Error encoding JSON", "error", err)
+
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	loggerConsole.Info("Successfully deleted expence", "status", http.StatusOK)
+	loggerFile.Info("Successfully deleted expence", "status", http.StatusOK)
+}

@@ -94,6 +94,15 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/expence/every/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetExpencesByRepeatType(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/expence/new", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PostExpence(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/update/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PutExpence(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/expence/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteExpence(w, r, loggerConsole, loggerFile, config)
+	})
 
 	//remain
 	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
