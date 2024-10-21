@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/helltale/api-finances/config"
-	debugging "github.com/helltale/api-finances/internal/debuging"
+	"github.com/helltale/api-finances/internal/debugging"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )

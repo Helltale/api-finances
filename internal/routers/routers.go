@@ -108,6 +108,27 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.RemainGetAll(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/remain/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainGetByIdRemain(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/remain/account/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainGetByIdAccount(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/remain/last/id/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainGetByIdLastEntry(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/remain/date/between/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainGetByDateBetween(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/remain/new", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainPost(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/remain/update/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainPut(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/remain/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.RemainDelete(w, r, loggerConsole, loggerFile, config)
+	})
 
 	//goal
 	http.HandleFunc("/goal/all", func(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/helltale/api-finances/config"
-	debugging "github.com/helltale/api-finances/internal/debuging"
+	"github.com/helltale/api-finances/internal/debugging"
 )
 
 func Init(config config.Config) {
