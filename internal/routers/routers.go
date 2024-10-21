@@ -100,4 +100,13 @@ func Init(loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Con
 	http.HandleFunc("/cashback/current", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetCashbacksCurrent(w, r, loggerConsole, loggerFile, config)
 	})
+	http.HandleFunc("/cashback/new", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PostCashback(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/update/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.PutCashback(w, r, loggerConsole, loggerFile, config)
+	})
+	http.HandleFunc("/cashback/delete/", func(w http.ResponseWriter, r *http.Request) {
+		handlers.DeleteCashback(w, r, loggerConsole, loggerFile, config)
+	})
 }
