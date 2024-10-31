@@ -1,20 +1,19 @@
 package handlers
 
 import (
-	"log/slog"
-
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 )
 
-func Init(config config.Config) {
+func Init(logger *logger.CombinedLogger, config config.Config) {
 	switch config.Mode {
 	case "debug":
 		debugging.Init()
-		slog.Info("run in debug mode")
+		logger.Info("run in debug mode")
 	case "release":
-		slog.Info("run in release mode")
+		logger.Info("run in release mode")
 	default:
-		slog.Error("bad config.mode")
+		logger.Error("bad config.mode")
 	}
 }

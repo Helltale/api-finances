@@ -27,7 +27,7 @@ func main() {
 
 	logger := logger.NewCombinedLogger(slogger, fileLogger)
 
-	handlers.Init(config.AppConf)
+	handlers.Init(logger, config.AppConf)
 
 	logger.Info("Server starting", "port", config.AppConf.APIPort)
 
