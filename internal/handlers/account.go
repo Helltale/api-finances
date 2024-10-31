@@ -2,26 +2,23 @@ package handlers
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func AccountGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAllAccounts called", "method", r.Method)
-	loggerFile.Info("GetAllAccounts called", "method", r.Method)
+func AccountGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetAllAccounts called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -39,9 +36,7 @@ func AccountGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	for _, account := range accounts {
 		accountJSON, err := account.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting account to JSON", "error", err)
-			loggerFile.Error("Error converting account to JSON", "error", err)
-
+			logger.Error("Error converting account to JSON", "error", err)
 			http.Error(w, u.JsonErrorResponse("Error converting account to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -49,26 +44,20 @@ func AccountGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	}
 
 	if err := json.NewEncoder(w).Encode(accountsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved accounts", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved accounts", "status", http.StatusOK)
+	logger.Info("Successfully retrieved accounts", "status", http.StatusOK)
 }
 
 // get one by id
-func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAccountById called", "method", r.Method)
-	loggerFile.Info("GetAccountById called", "method", r.Method)
+func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetAccountById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -102,35 +91,27 @@ func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	accountJSON, err := foundAccount.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting account to JSON", "error", err)
-		loggerFile.Error("Error converting account to JSON", "error", err)
-
+		logger.Error("Error converting account to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error converting account to JSON"), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(accountJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved account", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved account", "status", http.StatusOK)
+	logger.Info("Successfully retrieved account", "status", http.StatusOK)
 }
 
 // create
-func AccountPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PostAccount called", "method", r.Method)
-	loggerFile.Info("PostAccount called", "method", r.Method)
+func AccountPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PostAccount called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -138,9 +119,7 @@ func AccountPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	var newAccountJSON models.AccountJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newAccountJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
-
+		logger.Error("Error decoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
@@ -162,25 +141,20 @@ func AccountPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully created account", "status", http.StatusCreated)
-	loggerFile.Info("Successfully created account", "status", http.StatusCreated)
+	logger.Info("Successfully created account", "status", http.StatusCreated)
 }
 
 // update
-func AccountPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutAccount called", "method", r.Method)
-	loggerFile.Info("PutAccount called", "method", r.Method)
+func AccountPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PutAccount called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -202,9 +176,7 @@ func AccountPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	var updatedAccountJSON models.AccountJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedAccountJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
-
+		logger.Error("Error decoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
@@ -226,7 +198,7 @@ func AccountPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 
 	oldAccountJSON, err := oldAccount.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old account to JSON", "error", err)
+		logger.Error("Error converting old account to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old account"), http.StatusInternalServerError)
 		return
 	}
@@ -250,26 +222,20 @@ func AccountPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully updated account", "status", http.StatusOK)
-	loggerFile.Info("Successfully updated account", "status", http.StatusOK)
+	logger.Info("Successfully updated account", "status", http.StatusOK)
 }
 
 // delete
-func AccountDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("DeleteAccount called", "method", r.Method)
-	loggerFile.Info("DeleteAccount called", "method", r.Method)
+func AccountDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("DeleteAccount called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -304,7 +270,7 @@ func AccountDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 
 	oldAccountJSON, err := oldAccount.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old account to JSON", "error", err)
+		logger.Error("Error converting old account to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old account"), http.StatusInternalServerError)
 		return
 	}
@@ -319,13 +285,10 @@ func AccountDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully deleted account", "status", http.StatusOK)
-	loggerFile.Info("Successfully deleted account", "status", http.StatusOK)
+	logger.Info("Successfully deleted account", "status", http.StatusOK)
 }

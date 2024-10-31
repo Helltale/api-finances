@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -11,18 +10,17 @@ import (
 
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func CashbackGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAllCashbacks called", "method", r.Method)
-	loggerFile.Info("GetAllCashbacks called", "method", r.Method)
+func CashbackGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetAllCashbacks called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -41,8 +39,7 @@ func CashbackGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 	for _, cashback := range cashbacks {
 		cashbackJSON, err := cashback.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting cashback to JSON", "error", err)
-			loggerFile.Error("Error converting cashback to JSON", "error", err)
+			logger.Error("Error converting cashback to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 			return
@@ -51,25 +48,21 @@ func CashbackGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved cashbacks", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved cashbacks", "status", http.StatusOK)
+	logger.Info("Successfully retrieved cashbacks", "status", http.StatusOK)
 }
 
 // get one by id
-func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetCashbackById called", "method", r.Method)
-	loggerFile.Info("GetCashbackById called", "method", r.Method)
+func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetCashbackById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -104,8 +97,7 @@ func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, loggerConso
 
 	cashbackJSON, err := foundCashback.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting cashback to JSON", "error", err)
-		loggerFile.Error("Error converting cashback to JSON", "error", err)
+		logger.Error("Error converting cashback to JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 		return
@@ -113,25 +105,21 @@ func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, loggerConso
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(cashbackJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved cashback", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved cashback", "status", http.StatusOK)
+	logger.Info("Successfully retrieved cashback", "status", http.StatusOK)
 }
 
 // get by account id
-func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetCashbacksByAccountId called", "method", r.Method)
-	loggerFile.Info("GetCashbacksByAccountId called", "method", r.Method)
+func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetCashbacksByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -167,8 +155,7 @@ func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsol
 	for _, cashback := range foundCashbacks {
 		cashbackJSON, err := cashback.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting cashback to JSON", "error", err)
-			loggerFile.Error("Error converting cashback to JSON", "error", err)
+			logger.Error("Error converting cashback to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 			return
@@ -178,25 +165,21 @@ func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(cashbacksJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved cashbacks for account", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved cashbacks for account", "status", http.StatusOK)
+	logger.Info("Successfully retrieved cashbacks for account", "status", http.StatusOK)
 }
 
 // get by bank name
-func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetCashbacksByBankName called", "method", r.Method)
-	loggerFile.Info("GetCashbacksByBankName called", "method", r.Method)
+func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetCashbacksByBankName called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -227,8 +210,7 @@ func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, loggerConsole
 	for _, cashback := range foundCashbacks {
 		cashbackJSON, err := cashback.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting cashback to JSON", "error", err)
-			loggerFile.Error("Error converting cashback to JSON", "error", err)
+			logger.Error("Error converting cashback to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 			return
@@ -238,25 +220,21 @@ func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(cashbacksJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved cashbacks for bank", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved cashbacks for bank", "status", http.StatusOK)
+	logger.Info("Successfully retrieved cashbacks for bank", "status", http.StatusOK)
 }
 
 // get by category
-func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetCashbacksByCategory called", "method", r.Method)
-	loggerFile.Info("GetCashbacksByCategory called", "method", r.Method)
+func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetCashbacksByCategory called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -286,8 +264,7 @@ func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, loggerConsole
 	for _, cashback := range foundCashbacks {
 		cashbackJSON, err := cashback.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting cashback to JSON", "error", err)
-			loggerFile.Error("Error converting cashback to JSON", "error", err)
+			logger.Error("Error converting cashback to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 			return
@@ -297,25 +274,21 @@ func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(cashbacksJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved cashbacks for category", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved cashbacks for category", "status", http.StatusOK)
+	logger.Info("Successfully retrieved cashbacks for category", "status", http.StatusOK)
 }
 
 // get current
-func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetCurrentCashbacks called", "method", r.Method)
-	loggerFile.Info("GetCurrentCashbacks called", "method", r.Method)
+func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetCurrentCashbacks called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -339,8 +312,7 @@ func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *s
 	for _, cashback := range foundCashbacks {
 		cashbackJSON, err := cashback.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting cashback to JSON", "error", err)
-			loggerFile.Error("Error converting cashback to JSON", "error", err)
+			logger.Error("Error converting cashback to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting cashback to JSON"), http.StatusInternalServerError)
 			return
@@ -350,25 +322,21 @@ func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *s
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(cashbacksJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved current cashbacks", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved current cashbacks", "status", http.StatusOK)
+	logger.Info("Successfully retrieved current cashbacks", "status", http.StatusOK)
 }
 
 // create
-func CashbackPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PostCashback called", "method", r.Method)
-	loggerFile.Info("PostCashback called", "method", r.Method)
+func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PostCashback called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -377,8 +345,7 @@ func CashbackPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	var newCashbackJSON models.CashbackJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newCashbackJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -410,25 +377,21 @@ func CashbackPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully created cashback", "status", http.StatusCreated)
-	loggerFile.Info("Successfully created cashback", "status", http.StatusCreated)
+	logger.Info("Successfully created cashback", "status", http.StatusCreated)
 }
 
 // update
-func CashbackPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutCashback called", "method", r.Method)
-	loggerFile.Info("PutCashback called", "method", r.Method)
+func CashbackPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PutCashback called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -450,8 +413,7 @@ func CashbackPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	var updatedCashbackJSON models.CashbackJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedCashbackJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -474,7 +436,7 @@ func CashbackPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 
 	oldCashbackJSON, err := oldCashback.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old cashback to JSON", "error", err)
+		logger.Error("Error converting old cashback to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old cashback"), http.StatusInternalServerError)
 		return
 	}
@@ -490,13 +452,13 @@ func CashbackPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedCashbackJSON.DateActualFrom); err == nil {
 		newCashback.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+		logger.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedCashbackJSON.DateActualTo); err == nil {
 		newCashback.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
 	debugging.Cashbacks = append(debugging.Cashbacks, newCashback)
@@ -512,25 +474,21 @@ func CashbackPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully updated cashback", "status", http.StatusOK)
-	loggerFile.Info("Successfully updated cashback", "status", http.StatusOK)
+	logger.Info("Successfully updated cashback", "status", http.StatusOK)
 }
 
 // delete
-func CashbackDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("DeleteCashback called", "method", r.Method)
-	loggerFile.Info("DeleteCashback called", "method", r.Method)
+func CashbackDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("DeleteCashback called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -566,7 +524,7 @@ func CashbackDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	oldCashbackJSON, err := oldCashback.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old cashback to JSON", "error", err)
+		logger.Error("Error converting old cashback to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old cashback"), http.StatusInternalServerError)
 		return
 	}
@@ -581,13 +539,11 @@ func CashbackDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully deleted cashback", "status", http.StatusOK)
-	loggerFile.Info("Successfully deleted cashback", "status", http.StatusOK)
+	logger.Info("Successfully deleted cashback", "status", http.StatusOK)
 }

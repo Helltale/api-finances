@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
@@ -17,14 +17,12 @@ import (
 //todo сделать группу методов с актуальными структурами
 
 // get all
-func IncomeGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAllIncomes called", "method", r.Method)
-	loggerFile.Info("GetAllIncomes called", "method", r.Method)
+func IncomeGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+
+	logger.Info("GetAllIncomes called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Error("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -42,9 +40,7 @@ func IncomeGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	for _, income := range incomes {
 		incomeJSON, err := income.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting income to JSON", "error", err)
-			loggerFile.Error("Error converting income to JSON", "error", err)
-
+			logger.Error("Error converting income to JSON", "error", err)
 			http.Error(w, u.JsonErrorResponse("Error converting income to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -52,26 +48,19 @@ func IncomeGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Info("GetAllIncomes called", "method", r.Method)
-		loggerFile.Info("GetAllIncomes called", "method", r.Method)
-
+		logger.Info("GetAllIncomes called", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
-
-	loggerConsole.Info("Successfully retrieved incomes", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved incomes", "status", http.StatusOK)
+	logger.Info("Successfully retrieved incomes", "status", http.StatusOK)
 }
 
 // get one by id
-func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetIncomeById called", "method", r.Method)
-	loggerFile.Info("GetIncomeById called", "method", r.Method)
+func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetIncomeById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Error("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -105,35 +94,26 @@ func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	incomeJSON, err := foundIncome.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting income to JSON", "error", err)
-		loggerFile.Error("Error converting income to JSON", "error", err)
-
+		logger.Error("Error converting income to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error converting income to JSON"), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(incomeJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved income", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved income", "status", http.StatusOK)
+	logger.Info("Successfully retrieved income", "status", http.StatusOK)
 }
 
 // get all by person id
-func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetIncomesByAccountId called", "method", r.Method)
-	loggerFile.Info("GetIncomesByAccountId called", "method", r.Method)
-
+func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetIncomesByAccountId called", "method", r.Method)
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Error("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -162,9 +142,7 @@ func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole 
 		if income.GetIdAccaunt() == idAccaunt {
 			incomeJSON, err := income.ToJSON()
 			if err != nil {
-				loggerConsole.Error("Error converting income to JSON", "error", err)
-				loggerFile.Error("Error converting income to JSON", "error", err)
-
+				logger.Error("Error converting income to JSON", "error", err)
 				http.Error(w, u.JsonErrorResponse("Error converting income to JSON"), http.StatusInternalServerError)
 				return
 			}
@@ -179,26 +157,19 @@ func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole 
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(incomesByAccountId); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved incomes for account ID", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved incomes for account ID", "status", http.StatusOK)
+	logger.Info("Successfully retrieved incomes for account ID", "status", http.StatusOK)
 }
 
 // create
-func IncomePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PostIncome called", "method", r.Method)
-	loggerFile.Info("PostIncome called", "method", r.Method)
-
+func IncomePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PostIncome called", "method", r.Method)
 	if r.Method != http.MethodPost {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -206,9 +177,7 @@ func IncomePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	var newIncomeJSON models.IncomeJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newIncomeJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
-
+		logger.Error("Error decoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
@@ -227,13 +196,13 @@ func IncomePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", newIncomeJSON.DateActualFrom); err == nil {
 		newIncome.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+		logger.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", newIncomeJSON.DateActualTo); err == nil {
 		newIncome.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
 	debugging.Incomes = append(debugging.Incomes, newIncome)
@@ -247,26 +216,20 @@ func IncomePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully created income", "status", http.StatusCreated)
-	loggerFile.Info("Successfully created income", "status", http.StatusCreated)
+	logger.Info("Successfully created income", "status", http.StatusCreated)
 }
 
 // update
-func IncomePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutIncome called", "method", r.Method)
-	loggerFile.Info("PutIncome called", "method", r.Method)
+func IncomePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PutIncome called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Error("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -287,9 +250,7 @@ func IncomePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	var updatedIncomeJSON models.IncomeJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedIncomeJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
-
+		logger.Error("Error decoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
@@ -311,7 +272,7 @@ func IncomePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 
 	oldIncomeJSON, err := oldIncome.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old income to JSON", "error", err)
+		logger.Error("Error converting old income to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old income"), http.StatusInternalServerError)
 		return
 	}
@@ -329,13 +290,13 @@ func IncomePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedIncomeJSON.DateActualFrom); err == nil {
 		newIncome.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+		logger.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedIncomeJSON.DateActualTo); err == nil {
 		newIncome.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
 	debugging.Incomes = append(debugging.Incomes, newIncome)
@@ -351,26 +312,20 @@ func IncomePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully updated income", "status", http.StatusOK)
-	loggerFile.Info("Successfully updated income", "status", http.StatusOK)
+	logger.Info("Successfully updated income", "status", http.StatusOK)
 }
 
 // delete
-func IncomeDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("DeleteIncome called", "method", r.Method)
-	loggerFile.Info("DeleteIncome called", "method", r.Method)
+func IncomeDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("DeleteIncome called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -405,7 +360,7 @@ func IncomeDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 
 	oldIncomeJSON, err := oldIncome.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old income to JSON", "error", err)
+		logger.Error("Error converting old income to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old income"), http.StatusInternalServerError)
 		return
 	}
@@ -420,13 +375,11 @@ func IncomeDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully deleted income", "status", http.StatusOK)
-	loggerFile.Info("Successfully deleted income", "status", http.StatusOK)
+	logger.Info("Successfully deleted income", "status", http.StatusOK)
 }

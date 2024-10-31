@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,19 +10,17 @@ import (
 
 	"github.com/helltale/api-finances/config"
 	debugging "github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func ExpenceGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAllExpences called", "method", r.Method)
-	loggerFile.Info("GetAllExpences called", "method", r.Method)
+func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetAllExpences called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -41,9 +38,7 @@ func ExpenceGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	for _, expence := range expences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
-
+			logger.Error("Error converting expence to JSON", "error", err)
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -51,25 +46,20 @@ func ExpenceGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	}
 
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences", "status", http.StatusOK)
 }
 
 // get one by id
-func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpenceById called", "method", r.Method)
-	loggerFile.Info("GetExpenceById called", "method", r.Method)
+func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpenceById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -104,8 +94,7 @@ func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	expenceJSON, err := foundExpence.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting expence to JSON", "error", err)
-		loggerFile.Error("Error converting expence to JSON", "error", err)
+		logger.Error("Error converting expence to JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 		return
@@ -113,25 +102,20 @@ func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, loggerConsole
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expenceJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
-
+		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expence", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expence", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expence", "status", http.StatusOK)
 }
 
 // get all by group id
-func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByGroupId called", "method", r.Method)
-	loggerFile.Info("GetExpencesByGroupId called", "method", r.Method)
+func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByGroupId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -161,8 +145,7 @@ func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, loggerConsole *
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -172,25 +155,21 @@ func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by group", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by group", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by group", "status", http.StatusOK)
 }
 
 // get all by title
-func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByTitle called", "method", r.Method)
-	loggerFile.Info("GetExpencesByTitle called", "method", r.Method)
+func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByTitle called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -220,8 +199,7 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -231,25 +209,21 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, loggerConsole *sl
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by title", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by title", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by title", "status", http.StatusOK)
 }
 
 // get all by date range
-func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByDateRange called", "method", r.Method)
-	loggerFile.Info("GetExpencesByDateRange called", "method", r.Method)
+func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByDateRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -299,8 +273,7 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConso
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -310,25 +283,21 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConso
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by date range", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by date range", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by date range", "status", http.StatusOK)
 }
 
 // get all by repeat type
-func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByRepeatType called", "method", r.Method)
-	loggerFile.Info("GetExpencesByRepeatType called", "method", r.Method)
+func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByRepeatType called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -366,8 +335,7 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, loggerConsole *s
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -377,25 +345,21 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, loggerConsole *s
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by repeat type", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by repeat type", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by repeat type", "status", http.StatusOK)
 }
 
 // get all by amount range
-func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByAmountRange called", "method", r.Method)
-	loggerFile.Info("GetExpencesByAmountRange called", "method", r.Method)
+func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByAmountRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -444,8 +408,7 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerCon
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -455,25 +418,21 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerCon
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by amount range", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by amount range", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by amount range", "status", http.StatusOK)
 }
 
 // get all by max amount
-func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByMaxAmount called", "method", r.Method)
-	loggerFile.Info("GetExpencesByMaxAmount called", "method", r.Method)
+func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByMaxAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -511,8 +470,7 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsol
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -522,25 +480,21 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by max amount", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by max amount", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by max amount", "status", http.StatusOK)
 }
 
 // get all by min amount
-func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetExpencesByMinAmount called", "method", r.Method)
-	loggerFile.Info("GetExpencesByMinAmount called", "method", r.Method)
+func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetExpencesByMinAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -578,8 +532,7 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConso
 	for _, expence := range foundExpences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting expence to JSON", "error", err)
-			loggerFile.Error("Error converting expence to JSON", "error", err)
+			logger.Error("Error converting expence to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
@@ -589,25 +542,21 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConso
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved expences by min amount", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved expences by min amount", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expences by min amount", "status", http.StatusOK)
 }
 
 // create
-func ExpencePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PostExpence called", "method", r.Method)
-	loggerFile.Info("PostExpence called", "method", r.Method)
+func ExpencePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PostExpence called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -616,8 +565,7 @@ func ExpencePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	var newExpenceJSON models.ExpenceJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newExpenceJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -653,25 +601,21 @@ func ExpencePost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Log
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully created expence", "status", http.StatusCreated)
-	loggerFile.Info("Successfully created expence", "status", http.StatusCreated)
+	logger.Info("Successfully created expence", "status", http.StatusCreated)
 }
 
 // update
-func ExpencePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutExpence called", "method", r.Method)
-	loggerFile.Info("PutExpence called", "method", r.Method)
+func ExpencePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PutExpence called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -693,8 +637,7 @@ func ExpencePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	var updatedExpenceJSON models.ExpenceJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedExpenceJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -717,7 +660,7 @@ func ExpencePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 
 	oldExpenceJSON, err := oldExpence.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old expence to JSON", "error", err)
+		logger.Error("Error converting old expence to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old expence"), http.StatusInternalServerError)
 		return
 	}
@@ -734,19 +677,19 @@ func ExpencePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	if date, err := time.Parse("2006-01-02T15:04:05Z", updatedExpenceJSON.Date); err == nil {
 		newExpence.SetDate(date)
 	} else {
-		loggerConsole.Error("Error parsing Date", "error", err)
+		logger.Error("Error parsing Date", "error", err)
 	}
 
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedExpenceJSON.DateActualFrom); err == nil {
 		newExpence.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+		logger.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedExpenceJSON.DateActualTo); err == nil {
 		newExpence.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
 	debugging.Expences = append(debugging.Expences, newExpence)
@@ -762,25 +705,21 @@ func ExpencePut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully updated expence", "status", http.StatusOK)
-	loggerFile.Info("Successfully updated expence", "status", http.StatusOK)
+	logger.Info("Successfully updated expence", "status", http.StatusOK)
 }
 
 // delete
-func ExpenceDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("DeleteExpence called", "method", r.Method)
-	loggerFile.Info("DeleteExpence called", "method", r.Method)
+func ExpenceDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("DeleteExpence called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Info("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -816,7 +755,7 @@ func ExpenceDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 
 	oldExpenceJSON, err := oldExpence.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old expence to JSON", "error", err)
+		logger.Error("Error converting old expence to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old expence"), http.StatusInternalServerError)
 		return
 	}
@@ -831,13 +770,11 @@ func ExpenceDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.L
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully deleted expence", "status", http.StatusOK)
-	loggerFile.Info("Successfully deleted expence", "status", http.StatusOK)
+	logger.Info("Successfully deleted expence", "status", http.StatusOK)
 }

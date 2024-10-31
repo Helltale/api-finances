@@ -2,38 +2,38 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
+	"log"
 	"net/http"
-	"os"
 
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/handlers"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/routers"
 )
 
 func main() {
 
-	config.Init("config/config.yaml")
-
-	logFile, err := os.OpenFile(config.AppConf.FilepathLog, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	conf, err := config.NewConfig()
 	if err != nil {
-		fmt.Printf("Error opening log file: %v\n", err)
-		return
+		log.Fatalf("config error: %v\n", err)
 	}
-	defer logFile.Close()
+
+	slogger := logger.NewSLogger()
+	fileLogger, err := logger.NewFLogger(conf.FilepathLog)
+	if err != nil {
+		slogger.Error("Ошибка создания FileLogger", "error", err)
+	}
+	defer fileLogger.Close()
+
+	logger := logger.NewCombinedLogger(slogger, fileLogger)
 
 	handlers.Init(config.AppConf)
 
-	loggerConsole := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	loggerFile := slog.New(slog.NewTextHandler(logFile, nil))
+	logger.Info("Server starting", "port", config.AppConf.APIPort)
 
-	loggerConsole.Info("Server starting", "port", config.AppConf.APIPort)
-	loggerFile.Info("Server starting", "port", config.AppConf.APIPort)
-
-	routers.Init(loggerConsole, loggerFile, config.AppConf)
+	routers.Init(logger, config.AppConf)
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.AppConf.APIPort), nil); err != nil {
-		loggerConsole.Error("Server failed to start", "error", err)
-		loggerFile.Error("Server failed to start", "error", err)
+		logger.Error("Server failed to start", "error", err)
 	}
 }

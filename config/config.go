@@ -1,8 +1,8 @@
 package config
 
 import (
-	"log"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -19,14 +19,23 @@ type Config struct {
 
 var AppConf Config
 
-func Init(filepath string) {
-	data, err := os.ReadFile(filepath)
+func NewConfig() (*Config, error) {
+	configPath, err := filepath.Abs(filepath.Join("..", "config", "config.yaml"))
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return nil, err
 	}
 
-	err = yaml.Unmarshal(data, &AppConf)
+	file, err := os.Open(configPath)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return nil, err
 	}
+	defer file.Close()
+
+	decoder := yaml.NewDecoder(file)
+	config := &Config{}
+	if err := decoder.Decode(config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
 }

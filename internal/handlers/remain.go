@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,18 +10,17 @@ import (
 
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func RemainGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAllRemains called", "method", r.Method)
-	loggerFile.Info("GetAllRemains called", "method", r.Method)
+func RemainGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetAllRemains called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -41,8 +39,7 @@ func RemainGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	for _, remain := range remains {
 		remainJSON, err := remain.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting remain to JSON", "error", err)
-			loggerFile.Error("Error converting remain to JSON", "error", err)
+			logger.Error("Error converting remain to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting remain to JSON"), http.StatusInternalServerError)
 			return
@@ -51,25 +48,21 @@ func RemainGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved remains", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved remains", "status", http.StatusOK)
+	logger.Info("Successfully retrieved remains", "status", http.StatusOK)
 }
 
 // get one by id
-func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetRemainById called", "method", r.Method)
-	loggerFile.Info("GetRemainById called", "method", r.Method)
+func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetRemainById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -104,8 +97,7 @@ func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	remainJSON, err := foundRemain.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting remain to JSON", "error", err)
-		loggerFile.Error("Error converting remain to JSON", "error", err)
+		logger.Error("Error converting remain to JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error converting remain to JSON"), http.StatusInternalServerError)
 		return
@@ -113,25 +105,21 @@ func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(remainJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved remain", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved remain", "status", http.StatusOK)
+	logger.Info("Successfully retrieved remain", "status", http.StatusOK)
 }
 
 // get all by account id
-func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetRemainsByAccountId called", "method", r.Method)
-	loggerFile.Info("GetRemainsByAccountId called", "method", r.Method)
+func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetRemainsByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -161,8 +149,7 @@ func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole 
 		if remain.GetIdAccaunt() == idAccaunt {
 			remainJSON, err := remain.ToJSON()
 			if err != nil {
-				loggerConsole.Error("Error converting remain to JSON", "error", err)
-				loggerFile.Error("Error converting remain to JSON", "error", err)
+				logger.Error("Error converting remain to JSON", "error", err)
 
 				http.Error(w, u.JsonErrorResponse("Error converting remain to JSON"), http.StatusInternalServerError)
 				return
@@ -178,25 +165,21 @@ func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole 
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(remainsByAccountId); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved remains for account ID", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved remains for account ID", "status", http.StatusOK)
+	logger.Info("Successfully retrieved remains for account ID", "status", http.StatusOK)
 }
 
 // get last entry by remain id
-func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetLastRemainEntryById called", "method", r.Method)
-	loggerFile.Info("GetLastRemainEntryById called", "method", r.Method)
+func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetLastRemainEntryById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -233,8 +216,7 @@ func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	remainJSON, err := lastRemain.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting remain to JSON", "error", err)
-		loggerFile.Error("Error converting remain to JSON", "error", err)
+		logger.Error("Error converting remain to JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error converting remain to JSON"), http.StatusInternalServerError)
 		return
@@ -242,25 +224,21 @@ func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(remainJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved last remain entry", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved last remain entry", "status", http.StatusOK)
+	logger.Info("Successfully retrieved last remain entry", "status", http.StatusOK)
 }
 
 // get entries by dateActualFrom between two dates
-func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetRemainByDateBetween called", "method", r.Method)
-	loggerFile.Info("GetRemainByDateBetween called", "method", r.Method)
+func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetRemainByDateBetween called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -308,8 +286,7 @@ func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsol
 	for _, remain := range foundRemains {
 		remainJSON, err := remain.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting remain to JSON", "error", err)
-			loggerFile.Error("Error converting remain to JSON", "error", err)
+			logger.Error("Error converting remain to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting remain to JSON"), http.StatusInternalServerError)
 			return
@@ -319,25 +296,21 @@ func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(remainsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved remains in date range", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved remains in date range", "status", http.StatusOK)
+	logger.Info("Successfully retrieved remains in date range", "status", http.StatusOK)
 }
 
 // create
-func RemainPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PostRemain called", "method", r.Method)
-	loggerFile.Info("PostRemain called", "method", r.Method)
+func RemainPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PostRemain called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -346,8 +319,7 @@ func RemainPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	var newRemainJSON models.RemainJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newRemainJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -380,25 +352,21 @@ func RemainPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully created remain", "status", http.StatusCreated)
-	loggerFile.Info("Successfully created remain", "status", http.StatusCreated)
+	logger.Info("Successfully created remain", "status", http.StatusCreated)
 }
 
 // update
-func RemainPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutRemain called", "method", r.Method)
-	loggerFile.Info("PutRemain called", "method", r.Method)
+func RemainPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PutRemain called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -420,8 +388,7 @@ func RemainPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	var updatedRemainJSON models.RemainJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedRemainJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -444,7 +411,7 @@ func RemainPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 
 	oldRemainJSON, err := oldRemain.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old remain to JSON", "error", err)
+		logger.Error("Error converting old remain to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old remain"), http.StatusInternalServerError)
 		return
 	}
@@ -461,13 +428,13 @@ func RemainPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedRemainJSON.DateActualFrom); err == nil {
 		newRemain.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+		logger.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedRemainJSON.DateActualTo); err == nil {
 		newRemain.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
 	debugging.Remains = append(debugging.Remains, newRemain)
@@ -483,25 +450,21 @@ func RemainPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logge
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully updated remain", "status", http.StatusOK)
-	loggerFile.Info("Successfully updated remain", "status", http.StatusOK)
+	logger.Info("Successfully updated remain", "status", http.StatusOK)
 }
 
 // delete
-func RemainDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("DeleteRemain called", "method", r.Method)
-	loggerFile.Info("DeleteRemain called", "method", r.Method)
+func RemainDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("DeleteRemain called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -537,7 +500,7 @@ func RemainDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 
 	oldRemainJSON, err := oldRemain.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old remain to JSON", "error", err)
+		logger.Error("Error converting old remain to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old remain"), http.StatusInternalServerError)
 		return
 	}
@@ -552,13 +515,11 @@ func RemainDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Lo
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully deleted remain", "status", http.StatusOK)
-	loggerFile.Info("Successfully deleted remain", "status", http.StatusOK)
+	logger.Info("Successfully deleted remain", "status", http.StatusOK)
 }

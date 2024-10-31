@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,18 +10,17 @@ import (
 
 	"github.com/helltale/api-finances/config"
 	"github.com/helltale/api-finances/internal/debugging"
+	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
 // get all
-func GoalGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetAllGoals called", "method", r.Method)
-	loggerFile.Info("GetAllGoals called", "method", r.Method)
+func GoalGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetAllGoals called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -41,8 +39,7 @@ func GoalGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	for _, goal := range goals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting goal to JSON", "error", err)
-			loggerFile.Error("Error converting goal to JSON", "error", err)
+			logger.Error("Error converting goal to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
@@ -51,25 +48,21 @@ func GoalGetAll(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goals", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goals", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goals", "status", http.StatusOK)
 }
 
 // get one by id
-func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetGoalById called", "method", r.Method)
-	loggerFile.Info("GetGoalById called", "method", r.Method)
+func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetGoalById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -104,8 +97,7 @@ func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 
 	goalJSON, err := foundGoal.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting goal to JSON", "error", err)
-		loggerFile.Error("Error converting goal to JSON", "error", err)
+		logger.Error("Error converting goal to JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 		return
@@ -113,25 +105,21 @@ func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, loggerConsole *slog
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goal", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goal", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goal", "status", http.StatusOK)
 }
 
 // get all by account id
-func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetGoalsByAccountId called", "method", r.Method)
-	loggerFile.Info("GetGoalsByAccountId called", "method", r.Method)
+func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetGoalsByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -161,8 +149,7 @@ func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *s
 		if goal.GetIdAccaunt() == idAccaunt {
 			goalJSON, err := goal.ToJSON()
 			if err != nil {
-				loggerConsole.Error("Error converting goal to JSON", "error", err)
-				loggerFile.Error("Error converting goal to JSON", "error", err)
+				logger.Error("Error converting goal to JSON", "error", err)
 
 				http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 				return
@@ -178,25 +165,21 @@ func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, loggerConsole *s
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalsByAccountId); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goals for account ID", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goals for account ID", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goals for account ID", "status", http.StatusOK)
 }
 
 // get all by date range
-func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetGoalsByDateRange called", "method", r.Method)
-	loggerFile.Info("GetGoalsByDateRange called", "method", r.Method)
+func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetGoalsByDateRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -248,8 +231,7 @@ func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsole 
 	for _, goal := range foundGoals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting goal to JSON", "error", err)
-			loggerFile.Error("Error converting goal to JSON", "error", err)
+			logger.Error("Error converting goal to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
@@ -259,25 +241,21 @@ func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, loggerConsole 
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goals by date range", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goals by date range", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goals by date range", "status", http.StatusOK)
 }
 
 // get current
-func GoalGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetCurrentGoals called", "method", r.Method)
-	loggerFile.Info("GetCurrentGoals called", "method", r.Method)
+func GoalGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetCurrentGoals called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -301,8 +279,7 @@ func GoalGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 	for _, goal := range foundGoals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting goal to JSON", "error", err)
-			loggerFile.Error("Error converting goal to JSON", "error", err)
+			logger.Error("Error converting goal to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
@@ -312,25 +289,21 @@ func GoalGetCurrent(w http.ResponseWriter, r *http.Request, loggerConsole *slog.
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved current goals", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved current goals", "status", http.StatusOK)
+	logger.Info("Successfully retrieved current goals", "status", http.StatusOK)
 }
 
 // get all by amount range
-func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetGoalsByAmountRange called", "method", r.Method)
-	loggerFile.Info("GetGoalsByAmountRange called", "method", r.Method)
+func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetGoalsByAmountRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -375,8 +348,7 @@ func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerConsol
 	for _, goal := range foundGoals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting goal to JSON", "error", err)
-			loggerFile.Error("Error converting goal to JSON", "error", err)
+			logger.Error("Error converting goal to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
@@ -386,25 +358,21 @@ func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, loggerConsol
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goals by amount range", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goals by amount range", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goals by amount range", "status", http.StatusOK)
 }
 
 // get all by max amount
-func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetGoalsByMaxAmount called", "method", r.Method)
-	loggerFile.Info("GetGoalsByMaxAmount called", "method", r.Method)
+func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetGoalsByMaxAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -442,8 +410,7 @@ func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsole *
 	for _, goal := range foundGoals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting goal to JSON", "error", err)
-			loggerFile.Error("Error converting goal to JSON", "error", err)
+			logger.Error("Error converting goal to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
@@ -453,25 +420,21 @@ func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goals by max amount", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goals by max amount", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goals by max amount", "status", http.StatusOK)
 }
 
 // get all by min amount
-func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("GetGoalsByMinAmount called", "method", r.Method)
-	loggerFile.Info("GetGoalsByMinAmount called", "method", r.Method)
+func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("GetGoalsByMinAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -509,8 +472,7 @@ func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConsole *
 	for _, goal := range foundGoals {
 		goalJSON, err := goal.ToJSON()
 		if err != nil {
-			loggerConsole.Error("Error converting goal to JSON", "error", err)
-			loggerFile.Error("Error converting goal to JSON", "error", err)
+			logger.Error("Error converting goal to JSON", "error", err)
 
 			http.Error(w, u.JsonErrorResponse("Error converting goal to JSON"), http.StatusInternalServerError)
 			return
@@ -520,25 +482,21 @@ func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, loggerConsole *
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(goalsJSON); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully retrieved goals by min amount", "status", http.StatusOK)
-	loggerFile.Info("Successfully retrieved goals by min amount", "status", http.StatusOK)
+	logger.Info("Successfully retrieved goals by min amount", "status", http.StatusOK)
 }
 
 // create
-func GoalPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PostGoal called", "method", r.Method)
-	loggerFile.Info("PostGoal called", "method", r.Method)
+func GoalPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PostGoal called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -547,8 +505,7 @@ func GoalPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger
 	var newGoalJSON models.GoalJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&newGoalJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -581,25 +538,21 @@ func GoalPost(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully created goal", "status", http.StatusCreated)
-	loggerFile.Info("Successfully created goal", "status", http.StatusCreated)
+	logger.Info("Successfully created goal", "status", http.StatusCreated)
 }
 
 // update
-func GoalPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("PutGoal called", "method", r.Method)
-	loggerFile.Info("PutGoal called", "method", r.Method)
+func GoalPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("PutGoal called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -621,8 +574,7 @@ func GoalPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger,
 	var updatedGoalJSON models.GoalJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedGoalJSON); err != nil {
-		loggerConsole.Error("Error decoding JSON", "error", err)
-		loggerFile.Error("Error decoding JSON", "error", err)
+		logger.Error("Error decoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
@@ -645,7 +597,7 @@ func GoalPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger,
 
 	oldGoalJSON, err := oldGoal.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old goal to JSON", "error", err)
+		logger.Error("Error converting old goal to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old goal"), http.StatusInternalServerError)
 		return
 	}
@@ -659,19 +611,19 @@ func GoalPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger,
 	if date, err := time.Parse("2006-01-02T15:04:05Z", updatedGoalJSON.Date); err == nil {
 		newGoal.SetDate(date)
 	} else {
-		loggerConsole.Error("Error parsing Date", "error", err)
+		logger.Error("Error parsing Date", "error", err)
 	}
 
 	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedGoalJSON.DateActualFrom); err == nil {
 		newGoal.SetDateActualFrom(dateActualFrom)
 	} else {
-		loggerConsole.Error("Error parsing DateActualFrom", "error", err)
+		logger.Error("Error parsing DateActualFrom", "error", err)
 	}
 
 	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedGoalJSON.DateActualTo); err == nil {
 		newGoal.SetDateActualTo(dateActualTo)
 	} else {
-		loggerConsole.Error("Error parsing DateActualTo", "error", err)
+		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
 	debugging.Goals = append(debugging.Goals, newGoal)
@@ -687,25 +639,21 @@ func GoalPut(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully updated goal", "status", http.StatusOK)
-	loggerFile.Info("Successfully updated goal", "status", http.StatusOK)
+	logger.Info("Successfully updated goal", "status", http.StatusOK)
 }
 
 // delete
-func GoalDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logger, loggerFile *slog.Logger, config config.Config) {
-	loggerConsole.Info("DeleteGoal called", "method", r.Method)
-	loggerFile.Info("DeleteGoal called", "method", r.Method)
+func GoalDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+	logger.Info("DeleteGoal called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		loggerConsole.Warn("Method not allowed", "method", r.Method)
-		loggerFile.Warn("Method not allowed", "method", r.Method)
+		logger.Error("Method not allowed", "method", r.Method)
 
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
@@ -741,7 +689,7 @@ func GoalDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 
 	oldGoalJSON, err := oldGoal.ToJSON()
 	if err != nil {
-		loggerConsole.Error("Error converting old goal to JSON", "error", err)
+		logger.Error("Error converting old goal to JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error processing old goal"), http.StatusInternalServerError)
 		return
 	}
@@ -756,13 +704,11 @@ func GoalDelete(w http.ResponseWriter, r *http.Request, loggerConsole *slog.Logg
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		loggerConsole.Error("Error encoding JSON", "error", err)
-		loggerFile.Error("Error encoding JSON", "error", err)
+		logger.Error("Error encoding JSON", "error", err)
 
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	loggerConsole.Info("Successfully deleted goal", "status", http.StatusOK)
-	loggerFile.Info("Successfully deleted goal", "status", http.StatusOK)
+	logger.Info("Successfully deleted goal", "status", http.StatusOK)
 }
