@@ -10,6 +10,7 @@ import (
 	"github.com/helltale/api-finances/internal/debugging"
 	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
+	"github.com/helltale/api-finances/internal/services"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
@@ -130,7 +131,13 @@ func AccountPost(w http.ResponseWriter, r *http.Request, logger *logger.Combined
 	newAccount.SetName(newAccountJSON.Name)
 	newAccount.SetGroupId(newAccountJSON.GroupId)
 
-	debugging.Accounts = append(debugging.Accounts, newAccount)
+	// service
+	accountService := services.NewAccountService()
+	if err := accountService.AddNewAccount(newAccount); err != nil {
+		logger.Error("error adding account", "error", err)
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusConflict)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
