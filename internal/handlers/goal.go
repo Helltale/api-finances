@@ -16,7 +16,7 @@ import (
 )
 
 // get all
-func GoalGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAllGoals called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -29,7 +29,7 @@ func GoalGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 	w.Header().Set("Content-Type", "application/json")
 
 	var goals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		goals = debugging.Goals
 	} else {
 		goals = []*models.Goal{}
@@ -58,7 +58,7 @@ func GoalGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 }
 
 // get one by id
-func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetGoalById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -81,7 +81,7 @@ func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, logger *logger.Comb
 	}
 
 	var foundGoal *models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, goal := range debugging.Goals {
 			if goal.GetIdGoal() == idGoal {
 				foundGoal = goal
@@ -115,7 +115,7 @@ func GoalGetByIdGoal(w http.ResponseWriter, r *http.Request, logger *logger.Comb
 }
 
 // get all by account id
-func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetGoalsByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -138,7 +138,7 @@ func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.C
 	}
 
 	var goals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		goals = debugging.Goals
 	} else {
 		goals = []*models.Goal{}
@@ -175,7 +175,7 @@ func GoalGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.C
 }
 
 // get all by date range
-func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetGoalsByDateRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -214,7 +214,7 @@ func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger
 	}
 
 	var foundGoals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, goal := range debugging.Goals {
 			if goal.GetDate().After(startDate) && goal.GetDate().Before(endDate) {
 				foundGoals = append(foundGoals, goal)
@@ -251,7 +251,7 @@ func GoalGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger
 }
 
 // get current
-func GoalGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetCurrentGoals called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -262,7 +262,7 @@ func GoalGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.Combi
 	}
 
 	var foundGoals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, goal := range debugging.Goals {
 			if goal.GetDateActualTo().Equal(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)) {
 				foundGoals = append(foundGoals, goal)
@@ -299,7 +299,7 @@ func GoalGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.Combi
 }
 
 // get all by amount range
-func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetGoalsByAmountRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -331,7 +331,7 @@ func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logg
 	}
 
 	var foundGoals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, goal := range debugging.Goals {
 			if goal.GetAmount() >= minAmount && goal.GetAmount() <= maxAmount {
 				foundGoals = append(foundGoals, goal)
@@ -368,7 +368,7 @@ func GoalGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logg
 }
 
 // get all by max amount
-func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetGoalsByMaxAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -393,7 +393,7 @@ func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.
 	}
 
 	var foundGoals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, goal := range debugging.Goals {
 			if goal.GetAmount() < maxAmount {
 				foundGoals = append(foundGoals, goal)
@@ -430,7 +430,7 @@ func GoalGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.
 }
 
 // get all by min amount
-func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetGoalsByMinAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -455,7 +455,7 @@ func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.
 	}
 
 	var foundGoals []*models.Goal
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, goal := range debugging.Goals {
 			if goal.GetAmount() > minAmount {
 				foundGoals = append(foundGoals, goal)
@@ -492,7 +492,7 @@ func GoalGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.
 }
 
 // create
-func GoalPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostGoal called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
@@ -548,7 +548,7 @@ func GoalPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLog
 }
 
 // update
-func GoalPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutGoal called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -649,7 +649,7 @@ func GoalPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogg
 }
 
 // delete
-func GoalDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func GoalDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteGoal called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {

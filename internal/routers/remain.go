@@ -8,7 +8,7 @@ import (
 	"github.com/helltale/api-finances/internal/logger"
 )
 
-func remain(logger *logger.CombinedLogger, config config.Config) {
+func remain(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/remain/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.RemainGetAll(w, r, logger, config)
 	})

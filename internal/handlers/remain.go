@@ -16,7 +16,7 @@ import (
 )
 
 // get all
-func RemainGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAllRemains called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -29,7 +29,7 @@ func RemainGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 	w.Header().Set("Content-Type", "application/json")
 
 	var remains []*models.Remain
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		remains = debugging.Remains
 	} else {
 		remains = []*models.Remain{}
@@ -58,7 +58,7 @@ func RemainGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 }
 
 // get one by id
-func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetRemainById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -81,7 +81,7 @@ func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, logger *logger.
 	}
 
 	var foundRemain *models.Remain
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, remain := range debugging.Remains {
 			if remain.GetIdRemains() == idRemains {
 				foundRemain = remain
@@ -115,7 +115,7 @@ func RemainGetByIdRemain(w http.ResponseWriter, r *http.Request, logger *logger.
 }
 
 // get all by account id
-func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetRemainsByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -138,7 +138,7 @@ func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger
 	}
 
 	var remains []*models.Remain
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		remains = debugging.Remains
 	} else {
 		remains = []*models.Remain{}
@@ -175,7 +175,7 @@ func RemainGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger
 }
 
 // get last entry by remain id
-func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetLastRemainEntryById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -198,7 +198,7 @@ func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, logger *logg
 	}
 
 	var lastRemain *models.Remain
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, remain := range debugging.Remains {
 			if remain.GetIdRemains() == remainId {
 				if remain.GetDateActualTo().Format("2006-01-02") == "9999-12-31" {
@@ -234,7 +234,7 @@ func RemainGetByIdLastEntry(w http.ResponseWriter, r *http.Request, logger *logg
 }
 
 // get entries by dateActualFrom between two dates
-func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetRemainByDateBetween called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -268,7 +268,7 @@ func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logg
 	}
 
 	var foundRemains []*models.Remain
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, remain := range debugging.Remains {
 			dateActualFrom := remain.GetDateActualFrom()
 			if dateActualFrom.After(startDate) && dateActualFrom.Before(endDate) {
@@ -306,7 +306,7 @@ func RemainGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logg
 }
 
 // create
-func RemainPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostRemain called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
@@ -362,7 +362,7 @@ func RemainPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 }
 
 // update
-func RemainPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutRemain called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -460,7 +460,7 @@ func RemainPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLo
 }
 
 // delete
-func RemainDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func RemainDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteRemain called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {

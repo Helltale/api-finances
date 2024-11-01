@@ -19,21 +19,20 @@ func main() {
 	}
 
 	slogger := logger.NewSLogger()
-	fileLogger, err := logger.NewFLogger(conf.FilepathLog)
+	fileLogger, err := logger.NewFLogger(conf.AppFilelog)
 	if err != nil {
-		slogger.Error("Ошибка создания FileLogger", "error", err)
+		slogger.Error("ошибка создания logger", "config", conf, "error", err)
 	}
 	defer fileLogger.Close()
 
 	logger := logger.NewCombinedLogger(slogger, fileLogger)
 
-	handlers.Init(logger, config.AppConf)
+	handlers.Init(logger, conf)
 
-	logger.Info("Server starting", "port", config.AppConf.APIPort)
+	logger.Info("Server starting", "port", conf.AppPort)
 
-	routers.Init(logger, config.AppConf)
-
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.AppConf.APIPort), nil); err != nil {
+	routers.Init(logger, conf)
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", conf.AppPort), nil); err != nil {
 		logger.Error("Server failed to start", "error", err)
 	}
 }

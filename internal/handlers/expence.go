@@ -16,7 +16,7 @@ import (
 )
 
 // get all
-func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAllExpences called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -28,7 +28,7 @@ func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 	w.Header().Set("Content-Type", "application/json")
 
 	var expences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		expences = debugging.Expences
 	} else {
 		expences = []*models.Expence{}
@@ -55,7 +55,7 @@ func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 }
 
 // get one by id
-func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpenceById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -78,7 +78,7 @@ func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logge
 	}
 
 	var foundExpence *models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetIdExpence() == idExpence {
 				foundExpence = expence
@@ -111,7 +111,7 @@ func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logge
 }
 
 // get all by group id
-func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByGroupId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -128,7 +128,7 @@ func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetGroupExpence() == groupExpence {
 				foundExpences = append(foundExpences, expence)
@@ -165,7 +165,7 @@ func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.
 }
 
 // get all by title
-func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByTitle called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -182,7 +182,7 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.Co
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetTitleExpence() == titleExpence {
 				foundExpences = append(foundExpences, expence)
@@ -219,7 +219,7 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.Co
 }
 
 // get all by date range
-func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByDateRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -256,7 +256,7 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *log
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetDate().After(startDate) && expence.GetDate().Before(endDate) {
 				foundExpences = append(foundExpences, expence)
@@ -293,7 +293,7 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *log
 }
 
 // get all by repeat type
-func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByRepeatType called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -318,7 +318,7 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.C
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetRepeat() == int8(repeat) {
 				foundExpences = append(foundExpences, expence)
@@ -355,7 +355,7 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.C
 }
 
 // get all by amount range
-func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByAmountRange called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -391,7 +391,7 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetAmount() >= minAmount && expence.GetAmount() <= maxAmount {
 				foundExpences = append(foundExpences, expence)
@@ -428,7 +428,7 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 }
 
 // get all by max amount
-func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByMaxAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -453,7 +453,7 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logg
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetAmount() < maxAmount {
 				foundExpences = append(foundExpences, expence)
@@ -490,7 +490,7 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logg
 }
 
 // get all by min amount
-func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetExpencesByMinAmount called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -515,7 +515,7 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *log
 	}
 
 	var foundExpences []*models.Expence
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, expence := range debugging.Expences {
 			if expence.GetAmount() > minAmount {
 				foundExpences = append(foundExpences, expence)
@@ -552,7 +552,7 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *log
 }
 
 // create
-func ExpencePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpencePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostExpence called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
@@ -611,7 +611,7 @@ func ExpencePost(w http.ResponseWriter, r *http.Request, logger *logger.Combined
 }
 
 // update
-func ExpencePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpencePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutExpence called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -715,7 +715,7 @@ func ExpencePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 }
 
 // delete
-func ExpenceDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func ExpenceDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteExpence called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {

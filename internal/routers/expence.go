@@ -8,7 +8,7 @@ import (
 	"github.com/helltale/api-finances/internal/logger"
 )
 
-func expence(logger *logger.CombinedLogger, config config.Config) {
+func expence(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/expence/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.ExpenceGetAll(w, r, logger, config)
 	})

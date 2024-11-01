@@ -8,7 +8,7 @@ import (
 	"github.com/helltale/api-finances/internal/logger"
 )
 
-func cashback(logger *logger.CombinedLogger, config config.Config) {
+func cashback(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/cashback/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.CashbackGetAll(w, r, logger, config)
 	})

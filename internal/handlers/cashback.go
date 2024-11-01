@@ -16,7 +16,7 @@ import (
 )
 
 // get all
-func CashbackGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAllCashbacks called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -29,7 +29,7 @@ func CashbackGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combi
 	w.Header().Set("Content-Type", "application/json")
 
 	var cashbacks []*models.Cashback
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		cashbacks = debugging.Cashbacks
 	} else {
 		cashbacks = []*models.Cashback{}
@@ -58,7 +58,7 @@ func CashbackGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combi
 }
 
 // get one by id
-func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetCashbackById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -81,7 +81,7 @@ func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, logger *log
 	}
 
 	var foundCashback *models.Cashback
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, cashback := range debugging.Cashbacks {
 			if cashback.GetIdCashback() == idCashback {
 				foundCashback = cashback
@@ -115,7 +115,7 @@ func CashbackGetByIdCashback(w http.ResponseWriter, r *http.Request, logger *log
 }
 
 // get by account id
-func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetCashbacksByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -138,7 +138,7 @@ func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logg
 	}
 
 	var foundCashbacks []*models.Cashback
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, cashback := range debugging.Cashbacks {
 			if cashback.GetIdAccaunt() == idAccaunt {
 				foundCashbacks = append(foundCashbacks, cashback)
@@ -175,7 +175,7 @@ func CashbackGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logg
 }
 
 // get by bank name
-func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetCashbacksByBankName called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -193,7 +193,7 @@ func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, logger *logge
 	}
 
 	var foundCashbacks []*models.Cashback
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, cashback := range debugging.Cashbacks {
 			if strings.EqualFold(cashback.GetBankName(), bankName) {
 				foundCashbacks = append(foundCashbacks, cashback)
@@ -230,7 +230,7 @@ func CashbackGetByBankName(w http.ResponseWriter, r *http.Request, logger *logge
 }
 
 // get by category
-func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetCashbacksByCategory called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -247,7 +247,7 @@ func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, logger *logge
 	}
 
 	var foundCashbacks []*models.Cashback
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, cashback := range debugging.Cashbacks {
 			if strings.EqualFold(cashback.GetCategory(), category) {
 				foundCashbacks = append(foundCashbacks, cashback)
@@ -284,7 +284,7 @@ func CashbackGetByCategory(w http.ResponseWriter, r *http.Request, logger *logge
 }
 
 // get current
-func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetCurrentCashbacks called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -295,7 +295,7 @@ func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.C
 	}
 
 	var foundCashbacks []*models.Cashback
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, cashback := range debugging.Cashbacks {
 			if cashback.GetDateActualTo().Equal(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)) {
 				foundCashbacks = append(foundCashbacks, cashback)
@@ -332,7 +332,7 @@ func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.C
 }
 
 // create
-func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostCashback called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
@@ -387,7 +387,7 @@ func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 }
 
 // update
-func CashbackPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutCashback called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -484,7 +484,7 @@ func CashbackPut(w http.ResponseWriter, r *http.Request, logger *logger.Combined
 }
 
 // delete
-func CashbackDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func CashbackDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteCashback called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {

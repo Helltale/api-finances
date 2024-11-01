@@ -8,7 +8,7 @@ import (
 	"github.com/helltale/api-finances/internal/logger"
 )
 
-func income_expected(logger *logger.CombinedLogger, config config.Config) {
+func income_expected(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/income_expected/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.IncomesExpectedGetAll(w, r, logger, config)
 	})

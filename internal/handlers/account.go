@@ -14,7 +14,7 @@ import (
 )
 
 // get all
-func AccountGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func AccountGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAllAccounts called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -26,7 +26,7 @@ func AccountGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 	w.Header().Set("Content-Type", "application/json")
 
 	var accounts []*models.Account
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		accounts = debugging.Accounts
 	} else {
 		accounts = []*models.Account{}
@@ -53,7 +53,7 @@ func AccountGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 }
 
 // get one by id
-func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAccountById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -75,7 +75,7 @@ func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logge
 	}
 
 	var foundAccount *models.Account
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, account := range debugging.Accounts {
 			if account.GetIdAccaunt() == idAccaunt {
 				foundAccount = account
@@ -107,7 +107,7 @@ func AccountGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logge
 }
 
 // create
-func AccountPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func AccountPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostAccount called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
@@ -150,7 +150,7 @@ func AccountPost(w http.ResponseWriter, r *http.Request, logger *logger.Combined
 }
 
 // update
-func AccountPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func AccountPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutAccount called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -231,7 +231,7 @@ func AccountPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 }
 
 // delete
-func AccountDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func AccountDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteAccount called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {

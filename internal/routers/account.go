@@ -8,7 +8,7 @@ import (
 	"github.com/helltale/api-finances/internal/logger"
 )
 
-func account(logger *logger.CombinedLogger, config config.Config) {
+func account(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/account/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AccountGetAll(w, r, logger, config)
 	})

@@ -8,7 +8,7 @@ import (
 	"github.com/helltale/api-finances/internal/logger"
 )
 
-func goal(logger *logger.CombinedLogger, config config.Config) {
+func goal(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/goal/all", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GoalGetAll(w, r, logger, config)
 	})

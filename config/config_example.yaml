@@ -1,0 +1,7 @@
+app-port: ""
+app-mode: ""
+app-filelog: ""
+db-connect: ""
+db-name: ""
+db-user: ""
+db-password: ""

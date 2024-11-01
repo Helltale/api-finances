@@ -1,2 +1,4 @@
 app.log
 /config/config.yaml
+/config/app.log
+api-finances

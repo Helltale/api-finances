@@ -17,7 +17,7 @@ import (
 //todo сделать группу методов с актуальными структурами
 
 // get all
-func IncomesExpectedGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomesExpectedGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetAllIncomesExpected called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -29,7 +29,7 @@ func IncomesExpectedGetAll(w http.ResponseWriter, r *http.Request, logger *logge
 	w.Header().Set("Content-Type", "application/json")
 
 	var incomesExpected []*models.IncomeExpected
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		incomesExpected = debugging.IncomesExpected
 	} else {
 		incomesExpected = []*models.IncomeExpected{}
@@ -56,7 +56,7 @@ func IncomesExpectedGetAll(w http.ResponseWriter, r *http.Request, logger *logge
 }
 
 // get one by id
-func IncomeExpectedGetByIncomeExpectedId(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeExpectedGetByIncomeExpectedId(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetIncomeExpectedById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -78,7 +78,7 @@ func IncomeExpectedGetByIncomeExpectedId(w http.ResponseWriter, r *http.Request,
 	}
 
 	var foundIncomeExpected *models.IncomeExpected
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, incomeExpected := range debugging.IncomesExpected {
 			if incomeExpected.GetIdIncomeEx() == idIncomeEx {
 				foundIncomeExpected = incomeExpected
@@ -110,7 +110,7 @@ func IncomeExpectedGetByIncomeExpectedId(w http.ResponseWriter, r *http.Request,
 }
 
 // get all by person id
-func IncomesExpectedGetByAccountId(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomesExpectedGetByAccountId(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetIncomesByAccountId called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -133,7 +133,7 @@ func IncomesExpectedGetByAccountId(w http.ResponseWriter, r *http.Request, logge
 	}
 
 	var incomesExpected []*models.IncomeExpected
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		incomesExpected = debugging.IncomesExpected
 	} else {
 		incomesExpected = []*models.IncomeExpected{}
@@ -168,7 +168,7 @@ func IncomesExpectedGetByAccountId(w http.ResponseWriter, r *http.Request, logge
 }
 
 // create
-func IncomeExpectedPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeExpectedPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostIncomeExpected called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
@@ -220,7 +220,7 @@ func IncomeExpectedPost(w http.ResponseWriter, r *http.Request, logger *logger.C
 }
 
 // update
-func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutIncomeExpected called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -314,7 +314,7 @@ func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, logger *logger.Co
 }
 
 // delete
-func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteIncomeExpected called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {

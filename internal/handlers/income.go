@@ -17,7 +17,7 @@ import (
 //todo сделать группу методов с актуальными структурами
 
 // get all
-func IncomeGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeGetAll(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 
 	logger.Info("GetAllIncomes called", "method", r.Method)
 
@@ -30,7 +30,7 @@ func IncomeGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 	w.Header().Set("Content-Type", "application/json")
 
 	var incomes []*models.Income
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		incomes = debugging.Incomes
 	} else {
 		incomes = []*models.Income{}
@@ -56,7 +56,7 @@ func IncomeGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 }
 
 // get one by id
-func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetIncomeById called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
@@ -78,7 +78,7 @@ func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, logger *logger.
 	}
 
 	var foundIncome *models.Income
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		for _, income := range debugging.Incomes {
 			if income.GetIdIncome() == idIncome {
 				foundIncome = income
@@ -110,7 +110,7 @@ func IncomeGetByIdIncome(w http.ResponseWriter, r *http.Request, logger *logger.
 }
 
 // get all by person id
-func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("GetIncomesByAccountId called", "method", r.Method)
 	if r.Method != http.MethodGet {
 		logger.Error("Method not allowed", "method", r.Method)
@@ -131,7 +131,7 @@ func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger
 	}
 
 	var incomes []*models.Income
-	if config.Mode == "debug" {
+	if config.AppMode == "debug" {
 		incomes = debugging.Incomes
 	} else {
 		incomes = []*models.Income{}
@@ -166,7 +166,7 @@ func IncomeGetByIdAccount(w http.ResponseWriter, r *http.Request, logger *logger
 }
 
 // create
-func IncomePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PostIncome called", "method", r.Method)
 	if r.Method != http.MethodPost {
 		logger.Info("Method not allowed", "method", r.Method)
@@ -225,7 +225,7 @@ func IncomePost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 }
 
 // update
-func IncomePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("PutIncome called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
@@ -321,7 +321,7 @@ func IncomePut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLo
 }
 
 // delete
-func IncomeDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config config.Config) {
+func IncomeDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
 	logger.Info("DeleteIncome called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
