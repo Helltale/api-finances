@@ -162,21 +162,7 @@ func AccountPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 
 	if r.Method != http.MethodPut {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
-		return
-	}
-
-	urlPath := r.URL.Path
-	index := strings.TrimPrefix(urlPath, "/account/update/")
-	if index == urlPath {
-		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
-		return
-	}
-
-	idAccaunt, err := strconv.ParseInt(index, 10, 64)
-	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
 		return
 	}
 
@@ -188,44 +174,37 @@ func AccountPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedL
 		return
 	}
 
-	var oldAccount *models.Account
-	for i, account := range debugging.Accounts {
-		if account.GetIdAccaunt() == idAccaunt {
-			oldAccount = account
-
-			debugging.Accounts = append(debugging.Accounts[:i], debugging.Accounts[i+1:]...)
-			break
-		}
-	}
-
-	if oldAccount == nil {
-		http.Error(w, u.JsonErrorResponse("Account not found"), http.StatusNotFound)
-		return
-	}
-
-	oldAccountJSON, err := oldAccount.ToJSON()
-	if err != nil {
-		logger.Error("Error converting old account to JSON", "error", err)
-		http.Error(w, u.JsonErrorResponse("Error processing old account"), http.StatusInternalServerError)
-		return
-	}
-
+	// Создание нового аккаунта для обновления
 	newAccount := &models.Account{}
 	newAccount.SetIdAccaunt(updatedAccountJSON.IdAccaunt)
 	newAccount.SetTgId(updatedAccountJSON.TgId)
 	newAccount.SetName(updatedAccountJSON.Name)
 	newAccount.SetGroupId(updatedAccountJSON.GroupId)
 
-	debugging.Accounts = append(debugging.Accounts, newAccount)
+	accountService := services.NewAccountService()
+
+	// Обновление аккаунта
+	oldAccount, err := accountService.UpdateAccount(newAccount)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
+		return
+	}
+
+	// Преобразование старого аккаунта в JSON
+	oldAccountJSON, err := oldAccount.ToJSON()
+	if err != nil {
+		logger.Error("can not convert oldAccount to JSON struct", "error info", err)
+		http.Error(w, u.JsonErrorResponse("Error converting old account to JSON"), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	response := map[string]interface{}{
-		"message":       "Account updated successfully",
-		"index_account": idAccaunt,
-		"old_account":   oldAccountJSON,
-		"new_account":   updatedAccountJSON,
+		"message":     "Account updated successfully",
+		"new_account": updatedAccountJSON,
+		"old_account": oldAccountJSON,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -247,38 +226,21 @@ func AccountDelete(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 		return
 	}
 
-	urlPath := r.URL.Path
-	index := strings.TrimPrefix(urlPath, "/account/delete/")
-	if index == urlPath {
-		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
+	var deleteAccountJSON struct {
+		IdAccaunt int64 `json:"id_accaunt"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&deleteAccountJSON); err != nil {
+		logger.Error("Error decoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
 
-	idAccaunt, err := strconv.ParseInt(index, 10, 64)
-	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
-		return
-	}
+	accountService := services.NewAccountService()
 
-	var oldAccount *models.Account
-	for i, account := range debugging.Accounts {
-		if account.GetIdAccaunt() == idAccaunt {
-			oldAccount = account
-
-			debugging.Accounts = append(debugging.Accounts[:i], debugging.Accounts[i+1:]...)
-			break
-		}
-	}
-
-	if oldAccount == nil {
-		http.Error(w, u.JsonErrorResponse("Account not found"), http.StatusNotFound)
-		return
-	}
-
-	oldAccountJSON, err := oldAccount.ToJSON()
-	if err != nil {
-		logger.Error("Error converting old account to JSON", "error", err)
-		http.Error(w, u.JsonErrorResponse("Error processing old account"), http.StatusInternalServerError)
+	if err := accountService.DeleteAccount(deleteAccountJSON.IdAccaunt); err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -286,9 +248,8 @@ func AccountDelete(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 	w.WriteHeader(http.StatusOK)
 
 	response := map[string]interface{}{
-		"message":       "Account deleted successfully",
-		"index_account": idAccaunt,
-		"old_account":   oldAccountJSON,
+		"message":    "Account deleted successfully",
+		"id_accaunt": deleteAccountJSON.IdAccaunt,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {

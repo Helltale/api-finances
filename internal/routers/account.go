@@ -15,13 +15,13 @@ func account(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/account/id/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AccountGetByIdAccount(w, r, logger, config)
 	})
-	http.HandleFunc("/account/new/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/account/new", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AccountPost(w, r, logger, config)
 	})
-	http.HandleFunc("/account/update/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/account/update", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AccountPut(w, r, logger, config)
 	})
-	http.HandleFunc("/account/delete/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/account/delete", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AccountDelete(w, r, logger, config)
 	})
 }

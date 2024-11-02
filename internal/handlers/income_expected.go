@@ -11,6 +11,7 @@ import (
 	"github.com/helltale/api-finances/internal/debugging"
 	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
+	"github.com/helltale/api-finances/internal/services"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
@@ -169,7 +170,7 @@ func IncomesExpectedGetByAccountId(w http.ResponseWriter, r *http.Request, logge
 
 // create
 func IncomeExpectedPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
-	logger.Info("PostIncomeExpected called", "method", r.Method)
+	logger.Info("IncomeExpectedPost called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
 		logger.Info("Method not allowed", "method", r.Method)
@@ -200,8 +201,15 @@ func IncomeExpectedPost(w http.ResponseWriter, r *http.Request, logger *logger.C
 		newIncomeExpected.SetDateActualTo(dateActualTo)
 	}
 
-	debugging.IncomesExpected = append(debugging.IncomesExpected, newIncomeExpected)
+	// Use the service to add the new income expected
+	incomeExpectedService := services.NewIncomeExpectedService()
+	if err := incomeExpectedService.AddNewIncomeExpected(newIncomeExpected); err != nil {
+		logger.Error("Error adding income expected", "error", err)
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusConflict)
+		return
+	}
 
+	// Response with success message and created income expected data
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
@@ -229,19 +237,7 @@ func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, logger *logger.Co
 		return
 	}
 
-	urlPath := r.URL.Path
-	index := strings.TrimPrefix(urlPath, "/income_expected/update/")
-	if index == urlPath {
-		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
-		return
-	}
-
-	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
-	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
-		return
-	}
-
+	// Decode JSON body to get updated income expected data
 	var updatedIncomeExpectedJSON models.IncomeExpectedJSON
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&updatedIncomeExpectedJSON); err != nil {
@@ -250,28 +246,7 @@ func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, logger *logger.Co
 		return
 	}
 
-	var oldIncomeExpected *models.IncomeExpected
-	for i, income := range debugging.IncomesExpected {
-		if income.GetIdIncomeEx() == idIncomeEx {
-			oldIncomeExpected = income
-
-			debugging.IncomesExpected = append(debugging.IncomesExpected[:i], debugging.IncomesExpected[i+1:]...)
-			break
-		}
-	}
-
-	if oldIncomeExpected == nil {
-		http.Error(w, u.JsonErrorResponse("Income expected not found"), http.StatusNotFound)
-		return
-	}
-
-	oldIncomeExpectedJSON, err := oldIncomeExpected.ToJSON()
-	if err != nil {
-		logger.Error("Error converting old income expected to JSON", "error", err)
-		http.Error(w, u.JsonErrorResponse("Error processing old income expected"), http.StatusInternalServerError)
-		return
-	}
-
+	// Convert JSON struct to model struct
 	newIncomeExpected := &models.IncomeExpected{}
 	newIncomeExpected.SetIdAccaunt(updatedIncomeExpectedJSON.IdAccaunt)
 	newIncomeExpected.SetIdIncomeEx(updatedIncomeExpectedJSON.IdIncomeEx)
@@ -292,62 +267,10 @@ func IncomeExpectedPut(w http.ResponseWriter, r *http.Request, logger *logger.Co
 		logger.Error("Error parsing DateActualTo", "error", err)
 	}
 
-	debugging.IncomesExpected = append(debugging.IncomesExpected, newIncomeExpected)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	response := map[string]interface{}{
-		"message":               "Income expected updated successfully",
-		"index_income_expected": idIncomeEx,
-		"old_income_expected":   oldIncomeExpectedJSON,
-		"new_income_expected":   updatedIncomeExpectedJSON,
-	}
-
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		logger.Error("Error encoding JSON", "error", err)
-		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
-		return
-	}
-
-	logger.Info("Successfully updated income expected", "status", http.StatusOK)
-}
-
-// delete
-func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
-	logger.Info("DeleteIncomeExpected called", "method", r.Method)
-
-	if r.Method != http.MethodDelete {
-		logger.Info("Method not allowed", "method", r.Method)
-
-		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
-		return
-	}
-
-	urlPath := r.URL.Path
-	index := strings.TrimPrefix(urlPath, "/income_expected/delete/")
-	if index == urlPath {
-		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
-		return
-	}
-
-	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
+	incomeExpectedService := services.NewIncomeExpectedService()
+	oldIncomeExpected, err := incomeExpectedService.UpdateIncomeExpected(newIncomeExpected)
 	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
-		return
-	}
-
-	var oldIncomeExpected *models.IncomeExpected
-	for i, income := range debugging.IncomesExpected {
-		if income.GetIdIncomeEx() == idIncomeEx {
-			oldIncomeExpected = income
-
-			debugging.IncomesExpected = append(debugging.IncomesExpected[:i], debugging.IncomesExpected[i+1:]...)
-			break
-		}
-	}
-
-	if oldIncomeExpected == nil {
+		logger.Error("Income expected not found", "error", err)
 		http.Error(w, u.JsonErrorResponse("Income expected not found"), http.StatusNotFound)
 		return
 	}
@@ -363,9 +286,139 @@ func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, logger *logger
 	w.WriteHeader(http.StatusOK)
 
 	response := map[string]interface{}{
-		"message":               "Income expected deleted successfully",
-		"index_income_expected": idIncomeEx,
-		"old_income_expected":   oldIncomeExpectedJSON,
+		"message":             "Income expected updated successfully",
+		"old_income_expected": oldIncomeExpectedJSON,
+		"new_income_expected": updatedIncomeExpectedJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Error encoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Successfully updated income expected", "status", http.StatusOK)
+}
+
+// update + tohistory
+func IncomeExpectedVersionUpdate(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
+	logger.Info("IncomeExpectedVersionUpdate called", "method", r.Method)
+
+	if r.Method != http.MethodPut {
+		logger.Info("Method not allowed", "method", r.Method)
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Извлекаем `idIncomeEx` из URL
+	urlPath := r.URL.Path
+	index := strings.TrimPrefix(urlPath, "/income_expected/version_update/")
+	if index == urlPath {
+		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
+		return
+	}
+
+	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse("Invalid ID format"), http.StatusBadRequest)
+		return
+	}
+
+	// Декодируем JSON с новыми данными
+	var updatedIncomeExpectedJSON models.IncomeExpectedJSON
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&updatedIncomeExpectedJSON); err != nil {
+		logger.Error("Error decoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
+		return
+	}
+
+	// Создаем новую сущность `IncomeExpected` с новыми данными
+	newIncomeExpected := &models.IncomeExpected{}
+	newIncomeExpected.SetIdAccaunt(updatedIncomeExpectedJSON.IdAccaunt)
+	newIncomeExpected.SetIdIncomeEx(updatedIncomeExpectedJSON.IdIncomeEx)
+	newIncomeExpected.SetAmount(updatedIncomeExpectedJSON.Amount)
+	newIncomeExpected.SetTypeIncome(updatedIncomeExpectedJSON.TypeIncome)
+	newIncomeExpected.SetIncomeMonthDate(updatedIncomeExpectedJSON.IncomeMonthDate)
+	newIncomeExpected.SetUpdBy(updatedIncomeExpectedJSON.UpdBy)
+
+	incomeService := services.NewIncomeExpectedService()
+
+	oldIncomeExpected, err := incomeService.UpdateHistoryIncomeExpected(idIncomeEx, newIncomeExpected)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
+		return
+	}
+
+	oldIncomeExpectedJSON, err := oldIncomeExpected.ToJSON()
+	if err != nil {
+		logger.Error("Error converting old income expected to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing old income expected"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]interface{}{
+		"message":             "Income expected updated with new version",
+		"old_income_expected": oldIncomeExpectedJSON,
+		"new_income_expected": updatedIncomeExpectedJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Error encoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Successfully updated income expected with new version", "status", http.StatusOK)
+}
+
+// delete
+func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
+	logger.Info("DeleteIncomeExpected called", "method", r.Method)
+
+	if r.Method != http.MethodDelete {
+		logger.Info("Method not allowed", "method", r.Method)
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	var deleteIncomeExpectedJSON struct {
+		IdIncomeEx int64 `json:"id_income_ex"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&deleteIncomeExpectedJSON); err != nil {
+		logger.Error("Error decoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
+		return
+	}
+
+	incomeExpectedService := services.NewIncomeExpectedService()
+
+	oldIncomeExpected, err := incomeExpectedService.DeleteIncomeExpected(deleteIncomeExpectedJSON.IdIncomeEx)
+	if err != nil {
+		logger.Error("Income expected not found", "error", err)
+		http.Error(w, u.JsonErrorResponse("Income expected not found"), http.StatusNotFound)
+		return
+	}
+
+	oldIncomeExpectedJSON, err := oldIncomeExpected.ToJSON()
+	if err != nil {
+		logger.Error("Error converting old income expected to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing old income expected"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]interface{}{
+		"message":             "Income expected deleted successfully",
+		"id_income_expected":  deleteIncomeExpectedJSON.IdIncomeEx,
+		"old_income_expected": oldIncomeExpectedJSON,
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -375,4 +428,60 @@ func IncomeExpectedDelete(w http.ResponseWriter, r *http.Request, logger *logger
 	}
 
 	logger.Info("Successfully deleted income expected", "status", http.StatusOK)
+}
+
+// delete + restore
+func IncomeExpectedDeleteRestore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
+	logger.Info("IncomeExpectedDeleteRestore called", "method", r.Method)
+
+	if r.Method != http.MethodDelete {
+		logger.Info("Method not allowed", "method", r.Method)
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
+		return
+	}
+
+	urlPath := r.URL.Path
+	index := strings.TrimPrefix(urlPath, "/income_expected/delete_restore/")
+	if index == urlPath {
+		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
+		return
+	}
+
+	idIncomeEx, err := strconv.ParseInt(index, 10, 64)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse("Invalid ID format"), http.StatusBadRequest)
+		return
+	}
+
+	incomeService := services.NewIncomeExpectedService()
+
+	// delete current and restore historical
+	restoredRecord, err := incomeService.DeleteAndRestorePreviousIncomeExpexted(idIncomeEx)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
+		return
+	}
+
+	restoredRecordJSON, err := restoredRecord.ToJSON()
+	if err != nil {
+		logger.Error("Error converting restored income expected to JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error processing restored income expected"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]interface{}{
+		"message":                  "Current income expected deleted and last historical version restored",
+		"restored_income_expected": restoredRecordJSON,
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		logger.Error("Error encoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Successfully deleted current record and restored last historical version", "status", http.StatusOK)
 }

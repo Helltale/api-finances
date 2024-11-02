@@ -24,6 +24,9 @@ func income_expected(logger *logger.CombinedLogger, config *config.Config) {
 	http.HandleFunc("/income_expected/update/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.IncomeExpectedPut(w, r, logger, config)
 	})
+	http.HandleFunc("/income_expected/update/history", func(w http.ResponseWriter, r *http.Request) {
+		handlers.IncomeExpectedVersionUpdate(w, r, logger, config)
+	})
 	http.HandleFunc("/income_expected/delete/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.IncomeExpectedDelete(w, r, logger, config)
 	})
