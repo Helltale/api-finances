@@ -12,6 +12,7 @@ import (
 	"github.com/helltale/api-finances/internal/debugging"
 	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
+	"github.com/helltale/api-finances/internal/services"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
@@ -333,24 +334,22 @@ func CashbackGetCurrent(w http.ResponseWriter, r *http.Request, logger *logger.C
 
 // create
 func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
-	logger.Info("PostCashback called", "method", r.Method)
+	logger.Info("CashbackAdd called", "method", r.Method)
 
 	if r.Method != http.MethodPost {
-		logger.Error("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
 	var newCashbackJSON models.CashbackJSON
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&newCashbackJSON); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&newCashbackJSON); err != nil {
 		logger.Error("Error decoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
 
+	// Преобразование JSON структуры в модель Cashback
 	newCashback := &models.Cashback{}
 	newCashback.SetIdCashback(newCashbackJSON.IdCashback)
 	newCashback.SetIdAccaunt(newCashbackJSON.IdAccaunt)
@@ -358,89 +357,88 @@ func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 	newCashback.SetCategory(newCashbackJSON.Category)
 	newCashback.SetPercent(newCashbackJSON.Percent)
 	newCashback.SetUpdBy(newCashbackJSON.UpdBy)
+	dateFrom, _ := time.Parse("2006-01-02", newCashbackJSON.DateActualFrom)
+	dateTo, _ := time.Parse("2006-01-02", newCashbackJSON.DateActualTo)
+	newCashback.SetDateActualFrom(dateFrom)
+	newCashback.SetDateActualTo(dateTo)
 
-	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", newCashbackJSON.DateActualFrom); err == nil {
-		newCashback.SetDateActualFrom(dateActualFrom)
-	}
-	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", newCashbackJSON.DateActualTo); err == nil {
-		newCashback.SetDateActualTo(dateActualTo)
-	}
-
-	debugging.Cashbacks = append(debugging.Cashbacks, newCashback)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	response := map[string]interface{}{
-		"message":  "Cashback created successfully",
-		"cashback": newCashbackJSON,
-	}
-
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		logger.Error("Error encoding JSON", "error", err)
-
-		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+	cashbackService := services.NewCashbackService()
+	if err := cashbackService.AddNewCashback(newCashback); err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	logger.Info("Successfully created cashback", "status", http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	response := map[string]interface{}{
+		"message":     "Cashback added successfully",
+		"id_cashback": newCashbackJSON.IdCashback,
+	}
+	json.NewEncoder(w).Encode(response)
 }
 
 // update
 func CashbackPut(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
-	logger.Info("PutCashback called", "method", r.Method)
+	logger.Info("CashbackUpdate called", "method", r.Method)
 
 	if r.Method != http.MethodPut {
-		logger.Error("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
-	urlPath := r.URL.Path
-	index := strings.TrimPrefix(urlPath, "/cashback/update/")
-	if index == urlPath {
-		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
-		return
-	}
-
-	idCashback, err := strconv.ParseInt(index, 10, 64)
-	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
-		return
-	}
-
 	var updatedCashbackJSON models.CashbackJSON
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&updatedCashbackJSON); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&updatedCashbackJSON); err != nil {
 		logger.Error("Error decoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
 		return
 	}
 
-	var oldCashback *models.Cashback
-	for i, cashback := range debugging.Cashbacks {
-		if cashback.GetIdCashback() == idCashback {
-			oldCashback = cashback
+	updatedCashback := &models.Cashback{}
+	updatedCashback.SetIdCashback(updatedCashbackJSON.IdCashback)
+	updatedCashback.SetIdAccaunt(updatedCashbackJSON.IdAccaunt)
+	updatedCashback.SetBankName(updatedCashbackJSON.BankName)
+	updatedCashback.SetCategory(updatedCashbackJSON.Category)
+	updatedCashback.SetPercent(updatedCashbackJSON.Percent)
+	updatedCashback.SetUpdBy(updatedCashbackJSON.UpdBy)
+	dateFrom, _ := time.Parse("2006-01-02", updatedCashbackJSON.DateActualFrom)
+	dateTo, _ := time.Parse("2006-01-02", updatedCashbackJSON.DateActualTo)
+	updatedCashback.SetDateActualFrom(dateFrom)
+	updatedCashback.SetDateActualTo(dateTo)
 
-			debugging.Cashbacks = append(debugging.Cashbacks[:i], debugging.Cashbacks[i+1:]...)
-			break
-		}
-	}
-
-	if oldCashback == nil {
-		http.Error(w, u.JsonErrorResponse("Cashback not found"), http.StatusNotFound)
+	cashbackService := services.NewCashbackService()
+	if _, err := cashbackService.UpdateCashback(updatedCashback); err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
-	oldCashbackJSON, err := oldCashback.ToJSON()
-	if err != nil {
-		logger.Error("Error converting old cashback to JSON", "error", err)
-		http.Error(w, u.JsonErrorResponse("Error processing old cashback"), http.StatusInternalServerError)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	response := map[string]interface{}{
+		"message":     "Cashback updated successfully",
+		"id_cashback": updatedCashbackJSON.IdCashback,
+	}
+	json.NewEncoder(w).Encode(response)
+}
+
+// update + tohistory
+func CashbackUpdateWithHistory(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger) {
+	logger.Info("CashbackUpdateWithHistory called", "method", r.Method)
+
+	if r.Method != http.MethodPut {
+		logger.Info("Method not allowed", "method", r.Method)
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
+	var updatedCashbackJSON models.CashbackJSON
+	if err := json.NewDecoder(r.Body).Decode(&updatedCashbackJSON); err != nil {
+		logger.Error("Error decoding JSON", "error", err)
+		http.Error(w, u.JsonErrorResponse("Invalid JSON"), http.StatusBadRequest)
+		return
+	}
+
+	// Создаем новую актуальную запись
 	newCashback := &models.Cashback{}
 	newCashback.SetIdCashback(updatedCashbackJSON.IdCashback)
 	newCashback.SetIdAccaunt(updatedCashbackJSON.IdAccaunt)
@@ -449,101 +447,89 @@ func CashbackPut(w http.ResponseWriter, r *http.Request, logger *logger.Combined
 	newCashback.SetPercent(updatedCashbackJSON.Percent)
 	newCashback.SetUpdBy(updatedCashbackJSON.UpdBy)
 
-	if dateActualFrom, err := time.Parse("2006-01-02T15:04:05Z", updatedCashbackJSON.DateActualFrom); err == nil {
-		newCashback.SetDateActualFrom(dateActualFrom)
-	} else {
-		logger.Error("Error parsing DateActualFrom", "error", err)
-	}
-
-	if dateActualTo, err := time.Parse("2006-01-02T15:04:05Z", updatedCashbackJSON.DateActualTo); err == nil {
-		newCashback.SetDateActualTo(dateActualTo)
-	} else {
-		logger.Error("Error parsing DateActualTo", "error", err)
-	}
-
-	debugging.Cashbacks = append(debugging.Cashbacks, newCashback)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	response := map[string]interface{}{
-		"message":        "Cashback updated successfully",
-		"index_cashback": idCashback,
-		"old_cashback":   oldCashbackJSON,
-		"new_cashback":   updatedCashbackJSON,
-	}
-
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		logger.Error("Error encoding JSON", "error", err)
-
-		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+	cashbackService := services.NewCashbackService()
+	oldCashback, err := cashbackService.UpdateHistoryCashback(updatedCashbackJSON.IdCashback, newCashback)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
-	logger.Info("Successfully updated cashback", "status", http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	response := map[string]interface{}{
+		"message":      "Cashback updated with history successfully",
+		"id_cashback":  updatedCashbackJSON.IdCashback,
+		"old_cashback": oldCashback,
+	}
+	json.NewEncoder(w).Encode(response)
 }
 
 // delete
 func CashbackDelete(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
-	logger.Info("DeleteCashback called", "method", r.Method)
+	logger.Info("CashbackDelete called", "method", r.Method)
 
 	if r.Method != http.MethodDelete {
-		logger.Error("Method not allowed", "method", r.Method)
-
+		logger.Info("Method not allowed", "method", r.Method)
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
 	urlPath := r.URL.Path
-	index := strings.TrimPrefix(urlPath, "/cashback/delete/")
-	if index == urlPath {
-		http.Error(w, u.JsonErrorResponse("Invalid URL"), http.StatusBadRequest)
-		return
-	}
-
-	idCashback, err := strconv.ParseInt(index, 10, 64)
+	idStr := strings.TrimPrefix(urlPath, "/cashback/delete/")
+	idCashback, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid index format"), http.StatusBadRequest)
+		http.Error(w, u.JsonErrorResponse("Invalid cashback ID format"), http.StatusBadRequest)
 		return
 	}
 
-	var oldCashback *models.Cashback
-	for i, cashback := range debugging.Cashbacks {
-		if cashback.GetIdCashback() == idCashback {
-			oldCashback = cashback
-
-			debugging.Cashbacks = append(debugging.Cashbacks[:i], debugging.Cashbacks[i+1:]...)
-			break
-		}
-	}
-
-	if oldCashback == nil {
-		http.Error(w, u.JsonErrorResponse("Cashback not found"), http.StatusNotFound)
-		return
-	}
-
-	oldCashbackJSON, err := oldCashback.ToJSON()
+	cashbackService := services.NewCashbackService()
+	deletedCashback, err := cashbackService.DeleteCashback(idCashback)
 	if err != nil {
-		logger.Error("Error converting old cashback to JSON", "error", err)
-		http.Error(w, u.JsonErrorResponse("Error processing old cashback"), http.StatusInternalServerError)
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
 	response := map[string]interface{}{
-		"message":        "Cashback deleted successfully",
-		"index_cashback": idCashback,
-		"old_cashback":   oldCashbackJSON,
+		"message":      "Cashback deleted successfully",
+		"id_cashback":  idCashback,
+		"deleted_data": deletedCashback,
 	}
+	json.NewEncoder(w).Encode(response)
+}
 
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		logger.Error("Error encoding JSON", "error", err)
+// delete + restore
+func CashbackDeleteAndRestore(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger) {
+	logger.Info("CashbackDeleteAndRestore called", "method", r.Method)
 
-		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
+	if r.Method != http.MethodDelete {
+		logger.Info("Method not allowed", "method", r.Method)
+		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
-	logger.Info("Successfully deleted cashback", "status", http.StatusOK)
+	urlPath := r.URL.Path
+	idStr := strings.TrimPrefix(urlPath, "/cashback/delete-and-restore/")
+	idCashback, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse("Invalid cashback ID format"), http.StatusBadRequest)
+		return
+	}
+
+	cashbackService := services.NewCashbackService()
+	restoredCashback, err := cashbackService.DeleteAndRestorePreviousCashback(idCashback)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	response := map[string]interface{}{
+		"message":       "Cashback deleted and restored successfully",
+		"id_cashback":   idCashback,
+		"restored_data": restoredCashback,
+	}
+	json.NewEncoder(w).Encode(response)
 }
