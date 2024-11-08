@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	debugging "github.com/helltale/api-finances/internal/debugging"
 	"github.com/helltale/api-finances/internal/logger"
 	"github.com/helltale/api-finances/internal/models"
+	"github.com/helltale/api-finances/internal/services"
 	u "github.com/helltale/api-finances/internal/utils"
 )
 
@@ -25,13 +25,12 @@ func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	expenceService := services.NewExpenceService()
+	expences := expenceService.GetAllExpences()
 
-	var expences []*models.Expence
-	if config.AppMode == "debug" {
-		expences = debugging.Expences
-	} else {
-		expences = []*models.Expence{}
+	if len(expences) == 0 {
+		http.Error(w, u.JsonErrorResponse("No expences found"), http.StatusNotFound)
+		return
 	}
 
 	var expencesJSON []models.ExpenceJSON
@@ -45,13 +44,14 @@ func ExpenceGetAll(w http.ResponseWriter, r *http.Request, logger *logger.Combin
 		expencesJSON = append(expencesJSON, *expenceJSON)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
 
-	logger.Info("Successfully retrieved expences", "status", http.StatusOK)
+	logger.Info("Successfully retrieved all expences", "status", http.StatusOK)
 }
 
 // get one by id
@@ -60,42 +60,34 @@ func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logge
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
-	idExpenceStr := strings.TrimPrefix(r.URL.Path, "/expence/id/")
-	if idExpenceStr == "" {
-		http.Error(w, u.JsonErrorResponse("id_expence is required"), http.StatusBadRequest)
+	urlParts := strings.Split(r.URL.Path, "/")
+	if len(urlParts) < 5 {
+		http.Error(w, u.JsonErrorResponse("Expence ID is required"), http.StatusBadRequest)
 		return
 	}
 
-	idExpence, err := strconv.ParseInt(idExpenceStr, 10, 64)
+	idStr := urlParts[4]
+	idExpence, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		http.Error(w, u.JsonErrorResponse("Invalid id_expence"), http.StatusBadRequest)
+		http.Error(w, u.JsonErrorResponse("Invalid expence ID format"), http.StatusBadRequest)
 		return
 	}
 
-	var foundExpence *models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetIdExpence() == idExpence {
-				foundExpence = expence
-				break
-			}
-		}
-	}
-
-	if foundExpence == nil {
-		http.Error(w, u.JsonErrorResponse("Expence not found"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	expence, err := expenceService.GetExpenceById(idExpence)
+	if err != nil {
+		logger.Error("Error fetching expence", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error fetching expence"), http.StatusInternalServerError)
 		return
 	}
 
-	expenceJSON, err := foundExpence.ToJSON()
+	expenceJSON, err := expence.ToJSON()
 	if err != nil {
 		logger.Error("Error converting expence to JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -107,46 +99,46 @@ func ExpenceGetByIdExpence(w http.ResponseWriter, r *http.Request, logger *logge
 		return
 	}
 
-	logger.Info("Successfully retrieved expence", "status", http.StatusOK)
+	logger.Info("Successfully retrieved expence by ID", "status", http.StatusOK)
+
 }
 
 // get all by group id
 func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.CombinedLogger, config *config.Config) {
-	logger.Info("GetExpencesByGroupId called", "method", r.Method)
+	logger.Info("GetExpencesByGroup called", "method", r.Method)
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
-	groupExpence := strings.TrimPrefix(r.URL.Path, "/expence/group/")
-	if groupExpence == "" {
-		http.Error(w, u.JsonErrorResponse("group_expence is required"), http.StatusBadRequest)
+	urlParts := strings.Split(r.URL.Path, "/")
+	if len(urlParts) < 5 {
+		http.Error(w, u.JsonErrorResponse("Group is required"), http.StatusBadRequest)
 		return
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetGroupExpence() == groupExpence {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
+	group := urlParts[4]
+
+	expenceService := services.NewExpenceService()
+	expences, err := expenceService.GetExpencesByGroup(group)
+	if err != nil {
+		logger.Error("Error fetching expences", "error", err)
+		http.Error(w, u.JsonErrorResponse("Error fetching expences"), http.StatusInternalServerError)
+		return
 	}
 
-	if len(foundExpences) == 0 {
+	if len(expences) == 0 {
 		http.Error(w, u.JsonErrorResponse("No expences found for the specified group"), http.StatusNotFound)
 		return
 	}
 
 	var expencesJSON []models.ExpenceJSON
-	for _, expence := range foundExpences {
+	for _, expence := range expences {
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -156,7 +148,6 @@ func ExpenceGetByIdGroup(w http.ResponseWriter, r *http.Request, logger *logger.
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -170,7 +161,6 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.Co
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -181,17 +171,10 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.Co
 		return
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetTitleExpence() == titleExpence {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
-	}
-
-	if len(foundExpences) == 0 {
-		http.Error(w, u.JsonErrorResponse("No expences found for the specified title"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	foundExpences, err := expenceService.GetExpencesByTitle(titleExpence)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -200,7 +183,6 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.Co
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -210,7 +192,6 @@ func ExpenceGetByTitle(w http.ResponseWriter, r *http.Request, logger *logger.Co
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -224,7 +205,6 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *log
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -255,17 +235,10 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *log
 		}
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetDate().After(startDate) && expence.GetDate().Before(endDate) {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
-	}
-
-	if len(foundExpences) == 0 {
-		http.Error(w, u.JsonErrorResponse("No expences found in the specified date range"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	foundExpences, err := expenceService.GetExpencesByDateRange(startDate, endDate)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -274,7 +247,6 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *log
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -284,7 +256,6 @@ func ExpenceGetByDateBetween(w http.ResponseWriter, r *http.Request, logger *log
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -298,14 +269,12 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.C
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
 
 	urlParts := strings.Split(r.URL.Path, "/")
-	fmt.Println(urlParts)
-	if len(urlParts) < 2 {
+	if len(urlParts) < 3 {
 		http.Error(w, u.JsonErrorResponse("Repeat type is required"), http.StatusBadRequest)
 		return
 	}
@@ -317,17 +286,10 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.C
 		return
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetRepeat() == int8(repeat) {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
-	}
-
-	if len(foundExpences) == 0 {
-		http.Error(w, u.JsonErrorResponse("No expences found for the specified repeat type"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	foundExpences, err := expenceService.GetExpencesByRepeat(int8(repeat))
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -336,7 +298,6 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.C
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -346,7 +307,6 @@ func ExpenceGetByRepeat(w http.ResponseWriter, r *http.Request, logger *logger.C
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -360,7 +320,6 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -371,12 +330,8 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 		return
 	}
 
-	fmt.Println(urlParts)
-
 	minAmountStr := urlParts[4]
-	fmt.Println(minAmountStr)
 	maxAmountStr := urlParts[5]
-	fmt.Println(maxAmountStr)
 
 	minAmount, err := strconv.ParseFloat(minAmountStr, 64)
 	if err != nil {
@@ -390,17 +345,10 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 		return
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetAmount() >= minAmount && expence.GetAmount() <= maxAmount {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
-	}
-
-	if len(foundExpences) == 0 {
-		http.Error(w, u.JsonErrorResponse("No expences found in the specified amount range"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	foundExpences, err := expenceService.GetExpencesByAmountRange(minAmount, maxAmount)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -409,7 +357,6 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -419,7 +366,6 @@ func ExpenceGetByAmountBetween(w http.ResponseWriter, r *http.Request, logger *l
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -433,7 +379,6 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logg
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -452,17 +397,10 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logg
 		return
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetAmount() < maxAmount {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
-	}
-
-	if len(foundExpences) == 0 {
-		http.Error(w, u.JsonErrorResponse("No expences found below the specified amount"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	foundExpences, err := expenceService.GetExpencesByMaxAmount(maxAmount)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -471,7 +409,6 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logg
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -481,7 +418,6 @@ func ExpenceGetByAmountLess(w http.ResponseWriter, r *http.Request, logger *logg
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}
@@ -495,7 +431,6 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *log
 
 	if r.Method != http.MethodGet {
 		logger.Info("Method not allowed", "method", r.Method)
-
 		http.Error(w, u.JsonErrorResponse("Method not allowed"), http.StatusMethodNotAllowed)
 		return
 	}
@@ -514,17 +449,10 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *log
 		return
 	}
 
-	var foundExpences []*models.Expence
-	if config.AppMode == "debug" {
-		for _, expence := range debugging.Expences {
-			if expence.GetAmount() > minAmount {
-				foundExpences = append(foundExpences, expence)
-			}
-		}
-	}
-
-	if len(foundExpences) == 0 {
-		http.Error(w, u.JsonErrorResponse("No expences found above the specified amount"), http.StatusNotFound)
+	expenceService := services.NewExpenceService()
+	foundExpences, err := expenceService.GetExpencesByMinAmount(minAmount)
+	if err != nil {
+		http.Error(w, u.JsonErrorResponse(err.Error()), http.StatusNotFound)
 		return
 	}
 
@@ -533,7 +461,6 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *log
 		expenceJSON, err := expence.ToJSON()
 		if err != nil {
 			logger.Error("Error converting expence to JSON", "error", err)
-
 			http.Error(w, u.JsonErrorResponse("Error converting expence to JSON"), http.StatusInternalServerError)
 			return
 		}
@@ -543,7 +470,6 @@ func ExpencesGetByAmountMore(w http.ResponseWriter, r *http.Request, logger *log
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(expencesJSON); err != nil {
 		logger.Error("Error encoding JSON", "error", err)
-
 		http.Error(w, u.JsonErrorResponse("Error encoding JSON"), http.StatusInternalServerError)
 		return
 	}

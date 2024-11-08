@@ -349,7 +349,6 @@ func CashbackPost(w http.ResponseWriter, r *http.Request, logger *logger.Combine
 		return
 	}
 
-	// Преобразование JSON структуры в модель Cashback
 	newCashback := &models.Cashback{}
 	newCashback.SetIdCashback(newCashbackJSON.IdCashback)
 	newCashback.SetIdAccaunt(newCashbackJSON.IdAccaunt)
@@ -438,7 +437,6 @@ func CashbackUpdateWithHistory(w http.ResponseWriter, r *http.Request, logger *l
 		return
 	}
 
-	// Создаем новую актуальную запись
 	newCashback := &models.Cashback{}
 	newCashback.SetIdCashback(updatedCashbackJSON.IdCashback)
 	newCashback.SetIdAccaunt(updatedCashbackJSON.IdAccaunt)
